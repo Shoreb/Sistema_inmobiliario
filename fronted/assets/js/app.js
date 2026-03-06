@@ -1,7 +1,8 @@
-const API_URL = "http://localhost:3000/api";
+const API_URL = "http://localhost:8000";
 
 /* LOGIN */
 async function loginUser(e){
+
     e.preventDefault();
 
     const email = document.getElementById("email").value;
@@ -15,14 +16,20 @@ async function loginUser(e){
 
     const data = await res.json();
 
+    console.log(data);
+
     if(res.ok){
-        localStorage.setItem("token", data.token);
-        window.location.href="dashboard.html";
+
+        localStorage.setItem("token", data.access_token);
+
+        window.location.href = "dashboard.html";
+
     }else{
-        showToast(data.message);
+
+        alert("Credenciales incorrectas");
+
     }
 }
-
 document.addEventListener("DOMContentLoaded", function () {
 
     const togglePassword = document.getElementById("togglePassword");
@@ -42,25 +49,50 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* REGISTER */
-async function registerUser(e){
-    e.preventDefault();
+async function registerUser(event) {
 
-    const nombre = document.getElementById("nombre").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    event.preventDefault()
 
-    const res = await fetch(`${API_URL}/auth/register`,{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ nombre,email,password })
-    });
+    const name = document.getElementById("nombre").value
+    const email = document.getElementById("email").value
+    const password = document.getElementById("password").value
 
-    const data = await res.json();
-    showToast(data.message);
+    const data = {
+    name: name,
+    email: email,
+    password: password
+}
+    try {
 
-    if(res.ok){
-        window.location.href="login.html";
+        const response = await fetch("http://localhost:8000/auth/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+
+        const result = await response.json()
+
+        if (response.ok) {
+
+            alert("Usuario registrado correctamente")
+
+            window.location.href = "dashboard.html"
+
+        } else {
+
+            alert(result.detail || "Error al registrar")
+
+        }
+
+    } catch (error) {
+
+        console.error(error)
+        alert("Error conectando con el servidor")
+
     }
+
 }
 
 /* LOTES */
