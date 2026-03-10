@@ -1,33 +1,391 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-<title>Login</title>
-<link rel="stylesheet" href="assets/css/styles.css">
-<link rel="stylesheet" 
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inmosystem - Iniciar Sesión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark: #1a3a2a;
+      --green-mid: #2d6a4f;
+      --green-accent: #3a9e6f;
+      --green-light: #52b788;
+      --cream: #f5f0e8;
+      --cream-dark: #ede8dc;
+      --text-dark: #1c2b22;
+      --text-muted: #5a6e5e;
+      --white: #ffffff;
+      --shadow: 0 4px 24px rgba(0,0,0,0.10);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 68px;
+      background: rgba(245,240,232,0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(42,106,79,0.12);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: #1a3a2a; }
+    .logo-icon { font-size: 1.4rem; }
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem; font-weight: 700;
+      color: var(--green-dark); letter-spacing: 0.02em;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--text-muted); font-size: 0.92rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--green-accent); }
+    .nav-actions { display: flex; align-items: center; gap: 16px; }
+    .btn-link { text-decoration: none; color: var(--text-dark); font-size: 0.92rem; font-weight: 500; transition: color 0.2s; }
+    .btn-link:hover { color: var(--green-accent); }
+    .btn-primary {
+      display: inline-block; background: var(--green-accent); color: var(--white);
+      text-decoration: none; padding: 9px 22px; border-radius: 6px;
+      font-size: 0.92rem; font-weight: 600;
+      transition: background 0.2s, transform 0.15s;
+      border: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    }
+    .btn-primary:hover { background: var(--green-mid); transform: translateY(-1px); }
+
+    /* LAYOUT */
+    .login-wrapper {
+      flex: 1;
+      display: flex;
+      min-height: 100vh;
+      padding-top: 68px;
+    }
+
+    /* PANEL IZQUIERDO */
+    .login-left {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-left img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; filter: brightness(0.62);
+    }
+    .login-left-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(15,35,22,0.55) 0%, rgba(42,106,79,0.42) 100%);
+    }
+    .login-left-content {
+      position: relative; z-index: 2;
+      text-align: center; padding: 48px;
+      animation: fadeUp 0.9s ease both;
+    }
+    .login-left-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3vw, 2.9rem);
+      font-weight: 900; color: var(--white);
+      line-height: 1.15; margin-bottom: 16px;
+      text-shadow: 0 2px 18px rgba(0,0,0,0.3);
+    }
+    .login-left-content p {
+      color: rgba(255,255,255,0.82);
+      font-size: 1rem; font-weight: 300;
+      line-height: 1.75; max-width: 380px; margin: 0 auto;
+    }
+    .badges {
+      display: flex; gap: 10px; justify-content: center;
+      margin-top: 36px; flex-wrap: wrap;
+    }
+    .badge {
+      background: rgba(255,255,255,0.14);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: var(--white); border-radius: 999px;
+      padding: 8px 18px; font-size: 0.82rem; font-weight: 500;
+    }
+
+    /* PANEL DERECHO */
+    .login-right {
+      width: 490px;
+      min-width: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--cream);
+      padding: 48px 52px;
+    }
+    .login-box {
+      width: 100%;
+      animation: fadeUp 0.7s ease both 0.1s;
+    }
+    .login-box .brand {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 36px;
+    }
+    .login-box .brand .logo-text { font-size: 1.4rem; }
+    .login-box h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 900;
+      color: var(--text-dark); margin-bottom: 6px;
+    }
+    .login-box .subtitle {
+      color: var(--text-muted); font-size: 0.92rem;
+      margin-bottom: 32px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid var(--cream-dark);
+      margin-bottom: 32px;
+    }
+    .tab {
+      flex: 1; text-align: center;
+      padding: 10px 0; font-size: 0.92rem; font-weight: 600;
+      color: var(--text-muted); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px; transition: color 0.2s, border-color 0.2s;
+      text-decoration: none;
+    }
+    .tab.active { color: var(--green-accent); border-bottom-color: var(--green-accent); }
+    .tab:hover:not(.active) { color: var(--green-mid); }
+
+    /* Form */
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-size: 0.82rem; font-weight: 600;
+      color: var(--text-dark); margin-bottom: 7px;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem; pointer-events: none; opacity: 0.45;
+    }
+    .form-group input {
+      width: 100%; padding: 12px 14px 12px 42px;
+      border: 1.5px solid rgba(42,106,79,0.2);
+      border-radius: 8px; font-size: 0.92rem;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white); color: var(--text-dark);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .form-group input:focus {
+      border-color: var(--green-accent);
+      box-shadow: 0 0 0 3px rgba(58,158,111,0.12);
+    }
+    .form-group input::placeholder { color: #b0bdb5; }
+
+    .form-row {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 24px;
+    }
+    .remember {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.85rem; color: var(--text-muted); cursor: pointer;
+    }
+    .remember input[type="checkbox"] {
+      accent-color: var(--green-accent); width: 15px; height: 15px; cursor: pointer;
+    }
+    .forgot {
+      font-size: 0.85rem; color: var(--green-accent);
+      text-decoration: none; font-weight: 500; transition: color 0.2s;
+    }
+    .forgot:hover { color: var(--green-mid); }
+
+    .btn-submit {
+      width: 100%; padding: 13px;
+      background: var(--green-accent); color: var(--white);
+      border: none; border-radius: 8px; font-size: 1rem;
+      font-weight: 700; font-family: 'DM Sans', sans-serif;
+      cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      letter-spacing: 0.02em;
+    }
+    .btn-submit:hover {
+      background: var(--green-mid);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(42,106,79,0.28);
+    }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0; color: var(--text-muted); font-size: 0.82rem;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: rgba(42,106,79,0.15);
+    }
+
+    .btn-google {
+      width: 100%; padding: 12px;
+      background: var(--white); color: var(--text-dark);
+      border: 1.5px solid rgba(42,106,79,0.2); border-radius: 8px;
+      font-size: 0.92rem; font-weight: 600; font-family: 'DM Sans', sans-serif;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 10px;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .btn-google:hover {
+      border-color: var(--green-accent);
+      box-shadow: 0 3px 12px rgba(42,106,79,0.12);
+      transform: translateY(-1px);
+    }
+    .google-icon {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: conic-gradient(#ea4335 90deg, #fbbc05 90deg 180deg, #34a853 180deg 270deg, #4285f4 270deg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 900; color: white;
+    }
+
+    .register-link {
+      text-align: center; margin-top: 28px;
+      font-size: 0.88rem; color: var(--text-muted);
+    }
+    .register-link a {
+      color: var(--green-accent); font-weight: 600;
+      text-decoration: none; transition: color 0.2s;
+    }
+    .register-link a:hover { color: var(--green-mid); }
+
+    /* FOOTER */
+    .footer-mini {
+      background: var(--green-dark);
+      color: rgba(255,255,255,0.4);
+      text-align: center; padding: 16px;
+      font-size: 0.8rem;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .login-left { display: none; }
+      .login-right { width: 100%; min-width: unset; padding: 40px 28px; }
+    }
+    @media (max-width: 480px) {
+      .navbar { padding: 0 20px; }
+      .nav-links { display: none; }
+      .login-right { padding: 32px 20px; }
+    }
+  </style>
 </head>
-<body style="justify-content:center;align-items:center;height:100vh;">
+<body>
 
-<div class="card" style="width:400px;">
-<h2>Iniciar Sesión</h2>
-<form onsubmit="loginUser(event)">
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-icon">🏛</span>
+      <span class="logo-text">Inmosystem</span>
+    </a>
 
-<div class="input-group">
-    <i class="fa-solid fa-envelope"></i>
-    <input type="email" id="email" placeholder="Correo electrónico" required>
-</div>
+    <ul class="nav-links">
+      <li><a href="index.html#tipologias">Tipologías</a></li>
+      <li><a href="index.html#etapas">Etapas</a></li>
+      <li><a href="index.html#contacto">Contacto</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-link">Ingresar</a>
+      <a href="register.html" class="btn-primary">Registrarse</a>
+    </div>
+  </nav>
 
-<div class="input-group">
-    <i class="fa-solid fa-lock"></i>
-    <input type="password" id="password" placeholder="Contraseña" required>
-    <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
-</div>
+  <!-- MAIN -->
+  <div class="login-wrapper">
 
-<button class="btn-login" type="submit">Ingresar</button>
-</form>
-<p>¿No tienes cuenta? <a href="register.html">Registrarse</a></p>
-</div>
+    <!-- PANEL IZQUIERDO -->
+    <div class="login-left">
+      <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1400&q=80" alt="Urbanización Inmosystem" />
+      <div class="login-left-overlay"></div>
+      <div class="login-left-content">
+        <h2>Bienvenido de<br />vuelta a Inmosystem</h2>
+        <p>Accede a tu cuenta, gestiona tu lote, consulta tu estado de cuenta y sigue cada etapa de tu proyecto.</p>
+        <div class="badges">
+          <span class="badge">📍 Ubicación privilegiada</span>
+          <span class="badge">💳 Pago por cuotas</span>
+          <span class="badge">🛡 Inversión segura</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL DERECHO -->
+    <div class="login-right">
+      <div class="login-box">
+
+        
+        <h1>Iniciar Sesión</h1>
+        <p class="subtitle">Ingresa tus credenciales para continuar</p>
+
+        <div class="tabs">
+          <a href="login.html" class="tab active">Ingresar</a>
+          <a href="register.html" class="tab">Registrarse</a>
+        </div>
+
+        <form onsubmit="return false;">
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉</span>
+              <input type="email" id="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="remember">
+              <input type="checkbox" /> Recordarme
+            </label>
+            <a href="#" class="forgot">¿Olvidaste tu contraseña?</a>
+          </div>
+
+          <button type="submit" class="btn-submit"><a href="dashboard.html"></a>Ingresar →</button>
+
+          <div class="divider">o continúa con</div>
+
+          <button type="button" class="btn-google">
+            <span class="google-icon">G</span>
+            Continuar con Google
+          </button>
+        </form>
+
+        <p class="register-link">
+          ¿No tienes una cuenta? <a href="register.html">Regístrate gratis</a>
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-mini">
+    © 2026 Inmosystem. Todos los derechos reservados.
+  </div>
 
 <script src="assets/js/app.js"></script>
 </body>
