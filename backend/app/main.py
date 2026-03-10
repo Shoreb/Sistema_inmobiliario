@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import auth_routes
 from app.config.database import get_connection
-
 
 from app.routes import (
     auth_routes,
@@ -16,7 +14,7 @@ app = FastAPI(title="Sistema Inmobiliario API")
 
 origins = [
     "http://localhost:3000",
-    "https://tu-frontend.vercel.app"
+    "https://sistemainmobiliario.vercel.app"
 ]
 
 app.add_middleware(
