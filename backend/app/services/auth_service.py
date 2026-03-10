@@ -10,13 +10,15 @@ def create_user(user: dict):
     password_hash = hash_password(user["password"])
 
     query = """
-    INSERT INTO users (name, email, password)
+    INSERT INTO users (name, last_name, email, tel, password)
     VALUES (%s, %s, %s)
     """
 
     cursor.execute(query, (
         user["name"],
+        user["last_name"],
         user["email"],
+        user["tel"],
         password_hash
     ))
 

@@ -6,7 +6,7 @@ def get_all_users():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT id,name,email,role FROM users")
+    cursor.execute("SELECT id,name,last_name,email,tel,role FROM users")
 
     users = cursor.fetchall()
 
@@ -21,7 +21,7 @@ def get_user_by_id(user_id):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT id,name,email,role FROM users WHERE id=%s", (user_id,))
+    cursor.execute("SELECT id,name,last_name,email,tel,role FROM users WHERE id=%s", (user_id,))
 
     user = cursor.fetchone()
 
