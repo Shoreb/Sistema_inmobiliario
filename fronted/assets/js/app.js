@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000";
+const API_URL = "https://sistemainmobiliario-production.up.railway.app";
 
 /* LOGIN */
 async function loginUser(e){
@@ -64,7 +64,7 @@ async function registerUser(event) {
 }
     try {
 
-        const response = await fetch("http://localhost:8000/auth/register", {
+        const response = await fetch(`${API_URL}/auth/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
