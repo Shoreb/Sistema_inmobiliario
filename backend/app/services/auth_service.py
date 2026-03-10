@@ -11,7 +11,7 @@ def create_user(user: dict):
 
     query = """
     INSERT INTO users (name, last_name, email, tel, password)
-    VALUES (%s, %s, %s)
+    VALUES (%s, %s, %s, %s, %s)
     """
 
     cursor.execute(query, (
