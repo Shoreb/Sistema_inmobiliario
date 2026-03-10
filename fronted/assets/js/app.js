@@ -54,13 +54,19 @@ async function registerUser(event) {
     event.preventDefault()
 
     const name = document.getElementById("nombre").value
+    const last_name = document.getElementById("apellido").value
     const email = document.getElementById("email").value
+    const tel = document.getElementById("telefono").value
     const password = document.getElementById("password").value
+    const confirm_password = document.getElementById("confirm").value
 
     const data = {
     name: name,
+    last_name: last_name,
     email: email,
-    password: password
+    tel:tel,
+    password: password,
+    confirm_password:confirm_password
 }
     try {
 
