@@ -340,12 +340,13 @@
           <a href="register.html" class="tab">Registrarse</a>
         </div>
 
-        <form onsubmit="return false;">
+    <form onsubmit="loginUser(event)">
+
           <div class="form-group">
             <label for="email">Correo electrónico</label>
             <div class="input-wrap">
               <span class="input-icon">✉</span>
-              <input type="email" id="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" />
+              <input type="email" id="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" required />
             </div>
           </div>
 
@@ -353,7 +354,7 @@
             <label for="password">Contraseña</label>
             <div class="input-wrap">
               <span class="input-icon">🔒</span>
-              <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+              <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required />
             </div>
           </div>
 
@@ -364,7 +365,10 @@
             <a href="#" class="forgot">¿Olvidaste tu contraseña?</a>
           </div>
 
-          <button type="submit" class="btn-submit"><a href="dashboard.html"></a>Ingresar →</button>
+        <button type="submit" class="btn-submit">
+            Ingresar →
+        </button>
+    </form>
 
           <div class="divider">o continúa con</div>
 
