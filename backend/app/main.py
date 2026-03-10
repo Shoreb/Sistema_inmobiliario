@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import auth_routes
+from app.config.database import get_connection
+
 
 from app.routes import (
     auth_routes,
@@ -30,3 +32,17 @@ app.include_router(pqrs_routes.router)
 @app.get("/")
 def root():
     return {"message": "API Sistema Inmobiliario funcionando"}
+
+@app.get("/test-db")
+def test_db():
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT DATABASE();")
+    db = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    return {"database": db}
