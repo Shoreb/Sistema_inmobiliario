@@ -1,44 +1,304 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>InmoSystem - Plataforma Inmobiliaria</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <style>
-        body{
-            justify-content:center;
-            align-items:center;
-            height:100vh;
-            text-align:center;
-        }
-        .hero h1{
-            font-size:40px;
-            margin-bottom:20px;
-        }
-        .hero p{
-            font-size:18px;
-            margin-bottom:30px;
-        }
-        .hero button{
-            margin:10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inmosystem - Tu Lote, Tu Futuro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark: #1a3a2a;
+      --green-mid: #2d6a4f;
+      --green-accent: #3a9e6f;
+      --green-light: #52b788;
+      --cream: #f5f0e8;
+      --cream-dark: #ede8dc;
+      --text-dark: #1c2b22;
+      --text-muted: #5a6e5e;
+      --white: #ffffff;
+      --shadow: 0 4px 24px rgba(0,0,0,0.10);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text-dark); line-height: 1.6; }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 68px;
+      background: rgba(245,240,232,0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(42,106,79,0.12);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .logo-icon { font-size: 1.4rem; }
+    .logo-text { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: var(--green-dark); letter-spacing: 0.02em; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--text-muted); font-size: 0.92rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--green-accent); }
+    .nav-actions { display: flex; align-items: center; gap: 16px; }
+    .btn-link { text-decoration: none; color: var(--text-dark); font-size: 0.92rem; font-weight: 500; transition: color 0.2s; }
+    .btn-link:hover { color: var(--green-accent); }
+    .btn-primary { display: inline-block; background: var(--green-accent); color: var(--white); text-decoration: none; padding: 9px 22px; border-radius: 6px; font-size: 0.92rem; font-weight: 600; transition: background 0.2s, transform 0.15s; }
+    .btn-primary:hover { background: var(--green-mid); transform: translateY(-1px); }
+    .btn-outline { display: inline-block; border: 2px solid var(--white); color: var(--white); text-decoration: none; padding: 9px 22px; border-radius: 6px; font-size: 0.92rem; font-weight: 600; transition: background 0.2s, color 0.2s; }
+    .btn-outline:hover { background: var(--white); color: var(--green-dark); }
+
+    /* HERO */
+    .hero { position: relative; height: 100vh; min-height: 580px; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center; }
+    .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.72); }
+    .hero-overlay { position: absolute; inset: 0; z-index: 1; background: linear-gradient(to bottom, rgba(15,35,22,0.18) 0%, rgba(15,35,22,0.55) 60%, rgba(15,35,22,0.72) 100%); }
+    .hero-content { position: relative; z-index: 2; padding: 0 24px; max-width: 700px; animation: fadeUp 0.9s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: translateY(0); } }
+    .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 900; color: var(--white); line-height: 1.1; margin-bottom: 20px; text-shadow: 0 2px 18px rgba(0,0,0,0.35); }
+    .hero-subtitle { font-size: 1.05rem; color: rgba(255,255,255,0.88); margin-bottom: 36px; font-weight: 300; line-height: 1.7; }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    /* FEATURES */
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--cream-dark); border-top: 1px solid rgba(42,106,79,0.1); border-bottom: 1px solid rgba(42,106,79,0.1); }
+    .feature-card { padding: 52px 36px; text-align: center; border-right: 1px solid rgba(42,106,79,0.1); transition: background 0.25s; }
+    .feature-card:last-child { border-right: none; }
+    .feature-card:hover { background: rgba(42,106,79,0.05); }
+    .feature-icon { font-size: 2.2rem; margin-bottom: 16px; }
+    .feature-card h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; color: var(--green-dark); margin-bottom: 10px; }
+    .feature-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.65; }
+
+    /* TIPOLOGÍAS */
+    .tipologias { padding: 90px 60px; background: var(--cream); }
+    .section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 3.5vw, 2.8rem); font-weight: 900; color: var(--text-dark); text-align: center; margin-bottom: 8px; }
+    .section-sub { text-align: center; color: var(--text-muted); font-size: 0.97rem; margin-bottom: 52px; }
+    .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
+    .property-card { background: var(--white); border-radius: 12px; padding: 28px 24px; border: 1px solid rgba(42,106,79,0.12); box-shadow: var(--shadow); transition: transform 0.25s, box-shadow 0.25s; }
+    .property-card:hover { transform: translateY(-4px); box-shadow: 0 8px 36px rgba(0,0,0,0.13); }
+    .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .card-icon { font-size: 1.2rem; }
+    .card-header h4 { font-family: 'Playfair Display', serif; font-size: 0.97rem; font-weight: 700; color: var(--green-dark); }
+    .property-card ul { list-style: none; margin-bottom: 18px; }
+    .property-card ul li { font-size: 0.875rem; color: var(--text-muted); padding: 3px 0; }
+    .property-card ul li strong { color: var(--text-dark); font-weight: 600; }
+    .price { font-size: 1rem; font-weight: 700; color: var(--green-accent); }
+
+    /* ETAPAS */
+    .etapas { padding: 90px 60px; background: var(--cream-dark); }
+    .etapas-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 1200px; margin: 52px auto 0; }
+    .etapa-card { position: relative; background: var(--white); border-radius: 12px; padding: 36px 24px 28px; border: 1px solid rgba(42,106,79,0.12); box-shadow: var(--shadow); transition: transform 0.25s; }
+    .etapa-card:hover { transform: translateY(-3px); }
+    .etapa-num { position: absolute; top: 14px; right: 18px; font-size: 0.78rem; font-weight: 700; color: var(--green-light); opacity: 0.7; }
+    .etapa-icon { font-size: 2rem; margin-bottom: 14px; }
+    .etapa-card h4 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--green-dark); margin-bottom: 8px; }
+    .etapa-card p { font-size: 0.875rem; color: var(--text-muted); line-height: 1.65; }
+
+    /* FOOTER */
+    .footer { background: var(--green-dark); color: rgba(255,255,255,0.85); }
+    .footer-inner { display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 48px; padding: 64px 60px 40px; max-width: 1200px; margin: 0 auto; }
+    .footer-brand .logo-text { color: var(--white); }
+    .footer-brand p { margin-top: 14px; font-size: 0.875rem; color: rgba(255,255,255,0.65); line-height: 1.7; max-width: 320px; }
+    .footer-contact h5, .footer-links h5 { font-weight: 700; color: var(--white); margin-bottom: 16px; letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.82rem; }
+    .footer-contact p { font-size: 0.875rem; color: rgba(255,255,255,0.65); margin-bottom: 8px; }
+    .footer-links { display: flex; flex-direction: column; }
+    .footer-links a { text-decoration: none; color: rgba(255,255,255,0.65); font-size: 0.875rem; margin-bottom: 8px; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--green-light); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); text-align: center; padding: 20px; font-size: 0.82rem; color: rgba(255,255,255,0.4); }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) { .cards-grid, .etapas-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) {
+      .navbar { padding: 0 20px; }
+      .nav-links { display: none; }
+      .features { grid-template-columns: 1fr; }
+      .feature-card { border-right: none; border-bottom: 1px solid rgba(42,106,79,0.1); }
+      .tipologias, .etapas { padding: 60px 20px; }
+      .cards-grid, .etapas-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr; padding: 40px 24px 28px; gap: 32px; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="card hero" style="max-width:700px;">
-    <h1>InmoSystem</h1>
-    <p>Plataforma profesional para gestión de venta de lotes y proyectos habitacionales.</p>
-    <p>Lotes desde 100m² hasta 200m² con financiación por cuotas.</p>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo">
+      <span class="logo-icon">🏛</span>
+      <span class="logo-text">Inmosystem</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#tipologias">Tipologías</a></li>
+      <li><a href="#etapas">Etapas</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-link">Ingresar</a>
+      <a href="register.html" class="btn-primary">Registrarse</a>
+    </div>
+  </nav>
 
-    <a href="login.html">
-        <button>Iniciar Sesión</button>
-    </a>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&q=80" alt="Vista aérea urbanización" class="hero-bg" />
+    <div class="hero-content">
+      <h1 class="hero-title">Tu Lote, Tu Futuro</h1>
+      <p class="hero-subtitle">
+        Lotes de terreno de 100 a 200 m² para construir la casa de tus sueños.<br />
+        Planos habitacionales incluidos con tu compra.
+      </p>
+      <div class="hero-btns">
+        <a href="register.html" class="btn-primary">Reserva tu Lote &rarr;</a>
+        <a href="#tipologias" class="btn-outline">Ver Tipologías</a>
+      </div>
+    </div>
+  </section>
 
-    <a href="register.html">
-        <button>Registrarse</button>
-    </a>
-</div>
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="feature-card">
+      <div class="feature-icon">📍</div>
+      <h3>Ubicación Privilegiada</h3>
+      <p>Lotes estratégicamente ubicados con acceso a vías principales y servicios.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💳</div>
+      <h3>Pago por Cuotas</h3>
+      <p>Financiamiento flexible con seguimiento en línea de tu estado de cuenta.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡</div>
+      <h3>Inversión Segura</h3>
+      <p>Proyecto respaldado con toda la documentación legal al día.</p>
+    </div>
+  </section>
+
+  <!-- TIPOLOGÍAS -->
+  <section class="tipologias" id="tipologias">
+    <h2 class="section-title">Tipologías de Inmuebles</h2>
+    <p class="section-sub">Encuentra el espacio ideal para ti y tu familia</p>
+    <div class="cards-grid">
+
+      <div class="property-card">
+        <div class="card-header">
+          <span class="card-icon">🏢</span>
+          <h4>Apartamento Tipo C</h4>
+        </div>
+        <ul>
+          <li>Área: <strong>36 m²</strong></li>
+          <li>Habitaciones: <strong>1</strong></li>
+          <li>Baños: <strong>1</strong></li>
+        </ul>
+        <p class="price">Desde $422'760.000</p>
+      </div>
+
+      <div class="property-card">
+        <div class="card-header">
+          <span class="card-icon">🏢</span>
+          <h4>Apartamento Tipo E</h4>
+        </div>
+        <ul>
+          <li>Área: <strong>72.3 m²</strong></li>
+          <li>Habitaciones: <strong>2</strong></li>
+          <li>Baños: <strong>2</strong></li>
+        </ul>
+        <p class="price">Desde $739'066.800</p>
+      </div>
+
+      <div class="property-card">
+        <div class="card-header">
+          <span class="card-icon">🏢</span>
+          <h4>Apartamento Tipo F</h4>
+        </div>
+        <ul>
+          <li>Área: <strong>75.5 m²</strong></li>
+          <li>Habitaciones: <strong>2</strong></li>
+          <li>Baños: <strong>2</strong></li>
+        </ul>
+        <p class="price">Desde $766'831.000</p>
+      </div>
+
+      <div class="property-card">
+        <div class="card-header">
+          <span class="card-icon">🏢</span>
+          <h4>Apartamento Tipo G</h4>
+        </div>
+        <ul>
+          <li>Área: <strong>56.5 m²</strong></li>
+          <li>Habitaciones: <strong>2</strong></li>
+          <li>Baños: <strong>0</strong></li>
+        </ul>
+        <p class="price">Desde $610'820.000</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ETAPAS -->
+  <section class="etapas" id="etapas">
+    <h2 class="section-title">Etapas del Proyecto</h2>
+    <div class="etapas-grid">
+
+      <div class="etapa-card">
+        <span class="etapa-num">1</span>
+        <div class="etapa-icon">🚀</div>
+        <h4>Lanzamiento</h4>
+        <p>Presentación oficial del proyecto con precios de preventa exclusivos.</p>
+      </div>
+
+      <div class="etapa-card">
+        <span class="etapa-num">2</span>
+        <div class="etapa-icon">📋</div>
+        <h4>Preventa</h4>
+        <p>Reserva tu lote con las mejores condiciones de financiamiento.</p>
+      </div>
+
+      <div class="etapa-card">
+        <span class="etapa-num">3</span>
+        <div class="etapa-icon">🏗</div>
+        <h4>Construcción</h4>
+        <p>Desarrollo de infraestructura vial, redes y zonas comunes.</p>
+      </div>
+
+      <div class="etapa-card">
+        <span class="etapa-num">4</span>
+        <div class="etapa-icon">🏠</div>
+        <h4>Entrega</h4>
+        <p>Escrituración y entrega formal del lote al propietario.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer" id="contacto">
+    <div class="footer-inner">
+
+      <div class="footer-brand">
+        <div class="nav-logo">
+          <span class="logo-icon">🏛</span>
+          <span class="logo-text">Inmosystem</span>
+        </div>
+        <p>Tu aliado en la compra de lotes de terreno para vivienda. Construye tu futuro con nosotros.</p>
+      </div>
+
+      <div class="footer-contact">
+        <h5>Contacto</h5>
+        <p>📞 +57 300 123 4567</p>
+        <p>✉ info@inmosystem.com</p>
+        <p>📍 Bogotá, Colombia</p>
+      </div>
+
+      <div class="footer-links">
+        <h5>Enlaces</h5>
+        <a href="#">Iniciar Sesión</a>
+        <a href="#">Registrarse</a>
+        <a href="#tipologias">Tipologías</a>
+      </div>
+
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Inmosystem. Todos los derechos reservados.</p>
+    </div>
+  </footer>
 
 </body>
 </html>
