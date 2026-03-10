@@ -22,7 +22,7 @@ async function loginUser(e){
 
         localStorage.setItem("token", data.access_token);
 
-        window.location.href = "dashboard.html";
+        window.location.replace("/dashboard.html");
 
     }else{
 
