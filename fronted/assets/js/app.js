@@ -49,18 +49,51 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* REGISTER */
+function checkStrength(val) {
+  const fill = document.getElementById('strengthFill');
+  const label = document.getElementById('strengthLabel');
+  let strength = 0;
+
+  if (val.length >= 8) strength++;
+  if (/[A-Z]/.test(val)) strength++;
+  if (/[0-9]/.test(val)) strength++;
+  if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+  const levels = [
+    { w: '0%', color: '#ccc', text: 'Ingresa una contraseña' },
+    { w: '25%', color: '#e53935', text: 'Muy débil' },
+    { w: '50%', color: '#fb8c00', text: 'Débil' },
+    { w: '75%', color: '#fdd835', text: 'Moderada' },
+    { w: '100%', color: '#3a9e6f', text: 'Fuerte ✓' },
+  ];
+
+  const l = val.length === 0 ? levels[0] : levels[strength];
+
+  fill.style.width = l.w;
+  fill.style.background = l.color;
+
+  label.textContent = l.text;
+  label.style.color = l.color === '#ccc' ? '#5a6e5e' : l.color;
+}
+
 async function registerUser(event) {
 
     event.preventDefault()
 
     const name = document.getElementById("nombre").value
+    const last_name = document.getElementById("apellido").value
     const email = document.getElementById("email").value
+    const tel = document.getElementById("telefono").value
     const password = document.getElementById("password").value
+    const confirm_password = document.getElementById("confirm").value
 
     const data = {
     name: name,
+    last_name: last_name,
     email: email,
-    password: password
+    tel:tel,
+    password: password,
+    confirm_password:confirm_password
 }
     try {
 
@@ -94,6 +127,7 @@ async function registerUser(event) {
     }
 
 }
+
 
 /* LOTES */
 async function cargarLotes(){
