@@ -12,15 +12,10 @@ from app.routes import (
 
 app = FastAPI(title="Sistema Inmobiliario API")
 
-origins = [
-    "http://localhost:3000",
-    "https://sistemainmobiliario.vercel.app"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
