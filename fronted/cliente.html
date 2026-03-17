@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inmosystem — Portal Cliente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:        #0f1c14;
+      --forest:     #1a3a2a;
+      --pine:       #2d6a4f;
+      --sage:       #3a9e6f;
+      --mint:       #52b788;
+      --fog:        #f5f0e8;
+      --parchment:  #ede8dc;
+      --mist:       #d6d0c4;
+      --body:       #4a5e50;
+      --white:      #ffffff;
+      --gold:       #c9a84c;
+      --gold-light: #f0d080;
+      --red:        #c0392b;
+      --red-light:  #fdecea;
+      --blue:       #2563eb;
+      --blue-light: #eff6ff;
+      --sh-card:    0 2px 20px rgba(15,28,20,0.08), 0 1px 4px rgba(15,28,20,0.05);
+      --sh-float:   0 16px 48px rgba(15,28,20,0.16), 0 4px 12px rgba(15,28,20,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--fog); color: var(--ink); min-height: 100vh; }
+
+    /* ══════════════════════════════════════════
+       TOPBAR
+    ══════════════════════════════════════════ */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 60px; background: var(--forest);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 10px; }
+    .topbar-logo  { font-size: 1.3rem; }
+    .topbar-name  { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; color: var(--white); letter-spacing: 0.04em; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .topbar-user  { display: flex; align-items: center; gap: 8px; }
+    .user-avatar  {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--sage); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700;
+    }
+    .user-name    { font-size: 0.85rem; color: rgba(255,255,255,0.75); font-weight: 500; }
+    .btn-logout   {
+      padding: 6px 14px; border-radius: 6px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6); font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover { background: rgba(192,57,43,0.25); border-color: rgba(192,57,43,0.4); color: #f1948a; }
+
+    /* ══════════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════════ */
+    .sidebar {
+      position: fixed; top: 60px; left: 0; bottom: 0; width: 220px;
+      background: var(--forest); z-index: 100;
+      display: flex; flex-direction: column;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .sidebar-nav  { list-style: none; padding: 20px 10px; flex: 1; }
+    .sidebar-nav li { margin-bottom: 2px; }
+    .sidebar-nav a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 8px;
+      text-decoration: none; color: rgba(255,255,255,0.55);
+      font-size: 0.88rem; font-weight: 500;
+      transition: all 0.2s;
+    }
+    .sidebar-nav a:hover { background: rgba(255,255,255,0.07); color: var(--white); }
+    .sidebar-nav a.active { background: var(--sage); color: var(--white); }
+    .nav-icon { font-size: 1rem; width: 18px; text-align: center; }
+
+    .sidebar-apt-badge {
+      margin: 0 10px 20px;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .sidebar-apt-label { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+    .sidebar-apt-name  { font-size: 0.85rem; font-weight: 600; color: var(--gold-light); }
+    .sidebar-apt-price { font-size: 0.75rem; color: rgba(255,255,255,0.45); margin-top: 2px; }
+
+    /* ══════════════════════════════════════════
+       MAIN
+    ══════════════════════════════════════════ */
+    .main { margin-left: 220px; padding-top: 60px; min-height: 100vh; }
+    .view  { display: none; }
+    .view.active { display: block; }
+    .page-content { padding: 36px 40px; }
+
+    /* ══════════════════════════════════════════
+       PÁGINA: SELECCIONAR APARTAMENTO
+    ══════════════════════════════════════════ */
+    .select-hero {
+      background: var(--forest);
+      padding: 52px 40px 44px;
+      position: relative; overflow: hidden;
+    }
+    .select-hero::before {
+      content: '';
+      position: absolute; top: -100px; right: -80px;
+      width: 340px; height: 340px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(82,183,136,0.12) 0%, transparent 70%);
+    }
+    .select-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 700; color: var(--white); margin-bottom: 10px; position: relative; z-index: 1; }
+    .select-hero p  { color: rgba(255,255,255,0.55); font-size: 0.97rem; font-weight: 300; position: relative; z-index: 1; }
+
+    /* Filtros */
+    .apt-filters {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      padding: 24px 40px; background: var(--parchment);
+      border-bottom: 1px solid var(--mist);
+    }
+    .f-btn {
+      padding: 7px 18px; border-radius: 999px;
+      border: 1.5px solid rgba(42,106,79,0.2);
+      background: var(--white); color: var(--body);
+      font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .f-btn.active, .f-btn:hover { background: var(--sage); color: var(--white); border-color: var(--sage); }
+
+    /* Grid de proyectos */
+    .projects-section { padding: 36px 40px; }
+    .projects-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 700; color: var(--forest); margin-bottom: 6px; }
+    .projects-section .sub { font-size: 0.88rem; color: var(--body); margin-bottom: 28px; }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .project-card {
+      background: var(--white); border-radius: 16px;
+      border: 1.5px solid rgba(42,106,79,0.1);
+      box-shadow: var(--sh-card); overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+      position: relative;
+    }
+    .project-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--sh-float);
+      border-color: var(--sage);
+    }
+    .project-card.selected-apt {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.2), var(--sh-float);
+    }
+
+    .pc-img { height: 170px; overflow: hidden; position: relative; }
+    .pc-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+    .project-card:hover .pc-img img { transform: scale(1.07); }
+
+    .pc-status {
+      position: absolute; top: 12px; left: 12px;
+      padding: 4px 12px; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .pc-status.disponible   { background: var(--sage); color: white; }
+    .pc-status.limitado     { background: #e67e22; color: white; }
+    .pc-status.agotado      { background: var(--red); color: white; }
+
+    .pc-selected-crown {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--gold); color: var(--forest);
+      width: 28px; height: 28px; border-radius: 50%;
+      display: none; align-items: center; justify-content: center;
+      font-size: 0.9rem; font-weight: 700;
+    }
+    .project-card.selected-apt .pc-selected-crown { display: flex; }
+
+    .pc-body { padding: 20px 20px 22px; }
+    .pc-project-tag { font-size: 0.72rem; font-weight: 700; color: var(--sage); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .pc-name { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; color: var(--forest); margin-bottom: 12px; }
+    .pc-specs { display: flex; gap: 12px; margin-bottom: 14px; }
+    .pc-spec  { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: var(--body); }
+    .pc-price { font-size: 1.05rem; font-weight: 700; color: var(--sage); }
+    .pc-price-sub { font-size: 0.75rem; color: var(--body); font-weight: 400; margin-top: 2px; }
+
+    .btn-select {
+      display: block; width: 100%; margin-top: 16px;
+      padding: 10px; border-radius: 8px; border: none;
+      background: var(--fog); color: var(--forest);
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-select:hover { background: var(--sage); color: white; }
+    .project-card.selected-apt .btn-select { background: var(--gold); color: var(--forest); }
+
+    /* ══════════════════════════════════════════
+       PÁGINA: INICIO / DASHBOARD
+    ══════════════════════════════════════════ */
+    .dash-header {
+      background: linear-gradient(135deg, var(--forest) 0%, var(--pine) 100%);
+      padding: 44px 40px 36px;
+      position: relative; overflow: hidden;
+    }
+    .dash-header::after {
+      content: '';
+      position: absolute; bottom: -40px; right: -40px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: rgba(82,183,136,0.08);
+    }
+    .dash-greeting { font-size: 0.88rem; color: rgba(255,255,255,0.5); font-weight: 400; margin-bottom: 8px; }
+    .dash-title { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 700; color: white; margin-bottom: 4px; }
+    .dash-sub   { font-size: 0.92rem; color: rgba(255,255,255,0.55); font-weight: 300; }
+
+    .dash-apt-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 18px; padding: 8px 16px; border-radius: 999px;
+      background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.3);
+    }
+    .dash-apt-pill span { font-size: 0.82rem; font-weight: 600; color: var(--gold-light); }
+
+    /* Métricas */
+    .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .metric-card { background: var(--white); border-radius: 12px; padding: 20px 18px; border: 1px solid rgba(42,106,79,0.1); box-shadow: var(--sh-card); }
+    .metric-icon { font-size: 1.4rem; margin-bottom: 10px; }
+    .metric-val  { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 700; color: var(--forest); line-height: 1; }
+    .metric-lbl  { font-size: 0.78rem; color: var(--body); margin-top: 4px; font-weight: 500; }
+    .metric-sub  { font-size: 0.72rem; color: var(--body); opacity: 0.6; margin-top: 2px; }
+
+    /* Progreso de pago */
+    .progress-section { background: var(--white); border-radius: 16px; padding: 28px; border: 1px solid rgba(42,106,79,0.1); box-shadow: var(--sh-card); margin-bottom: 24px; }
+    .progress-header  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .progress-title   { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 700; color: var(--forest); }
+    .progress-pct     { font-size: 1.1rem; font-weight: 700; color: var(--sage); }
+
+    .prog-bar-wrap { background: var(--fog); border-radius: 999px; height: 10px; overflow: hidden; margin-bottom: 8px; }
+    .prog-bar      { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--sage), var(--mint)); transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+    .prog-labels   { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--body); }
+
+    /* Próximo pago */
+    .next-payment {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--blue-light); border-radius: 12px; padding: 16px 20px;
+      border: 1px solid rgba(37,99,235,0.15); margin-bottom: 24px;
+    }
+    .next-payment-left { display: flex; align-items: center; gap: 14px; }
+    .next-payment-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .next-payment-label { font-size: 0.78rem; color: var(--blue); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .next-payment-info  { font-size: 1rem; font-weight: 700; color: var(--ink); margin-top: 2px; }
+    .next-payment-date  { font-size: 0.78rem; color: var(--body); margin-top: 2px; }
+    .btn-pay {
+      padding: 10px 24px; border-radius: 8px; border: none;
+      background: var(--blue); color: white;
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-pay:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+    /* ══════════════════════════════════════════
+       PÁGINA: PAGOS
+    ══════════════════════════════════════════ */
+    .pagos-top { padding: 36px 40px 0; }
+    .pagos-top h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; color: var(--forest); margin-bottom: 4px; }
+    .pagos-top p  { font-size: 0.9rem; color: var(--body); }
+
+    /* Configurador plan */
+    .plan-config {
+      margin: 28px 40px;
+      background: var(--white); border-radius: 16px;
+      border: 1px solid rgba(42,106,79,0.12);
+      box-shadow: var(--sh-card); overflow: hidden;
+    }
+    .plan-config-header { background: var(--forest); padding: 20px 24px; }
+    .plan-config-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 700; color: white; }
+    .plan-config-header p  { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+    .plan-config-body { padding: 24px; }
+
+    .plan-toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .plan-toggle-label { font-weight: 600; font-size: 0.9rem; color: var(--forest); }
+    .plan-toggle-sub   { font-size: 0.78rem; color: var(--body); margin-top: 2px; }
+    .toggle-group { display: flex; gap: 0; background: var(--fog); border-radius: 8px; padding: 4px; }
+    .toggle-opt {
+      padding: 8px 20px; border-radius: 6px; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; color: var(--body); background: transparent;
+    }
+    .toggle-opt.active { background: var(--white); color: var(--forest); box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
+
+    .plan-summary {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px;
+    }
+    .plan-sum-item { background: var(--fog); border-radius: 10px; padding: 14px 16px; }
+    .plan-sum-lbl  { font-size: 0.72rem; font-weight: 700; color: var(--body); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .plan-sum-val  { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: var(--forest); }
+    .plan-sum-sub  { font-size: 0.72rem; color: var(--body); margin-top: 3px; }
+
+    /* Tabla de cuotas */
+    .cuotas-wrap { margin: 0 40px 40px; }
+    .cuotas-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .cuotas-toolbar h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: var(--forest); }
+    .cuotas-filter { display: flex; gap: 6px; }
+    .cf-btn { padding: 6px 14px; border-radius: 6px; border: 1.5px solid var(--mist); background: var(--white); color: var(--body); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .cf-btn.active, .cf-btn:hover { background: var(--forest); color: white; border-color: var(--forest); }
+
+    .cuotas-table-wrap { background: var(--white); border-radius: 14px; border: 1px solid rgba(42,106,79,0.1); box-shadow: var(--sh-card); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: 13px 18px; text-align: left; font-size: 0.72rem; font-weight: 700; color: var(--body); text-transform: uppercase; letter-spacing: 0.06em; background: var(--parchment); border-bottom: 1px solid var(--mist); }
+    tbody tr { border-bottom: 1px solid rgba(42,106,79,0.06); transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(58,158,111,0.03); }
+    tbody td { padding: 14px 18px; font-size: 0.88rem; color: var(--ink); vertical-align: middle; }
+
+    .cuota-num { font-weight: 700; color: var(--body); font-size: 0.82rem; }
+    .cuota-monto { font-weight: 700; color: var(--forest); }
+
+    /* Badges estado cuota */
+    .cbadge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+    .cbadge.pagada     { background: rgba(58,158,111,0.1); color: var(--sage); }
+    .cbadge.pendiente  { background: rgba(37,99,235,0.08); color: var(--blue); }
+    .cbadge.vencida    { background: var(--red-light); color: var(--red); }
+    .cbadge.proxima    { background: rgba(201,168,76,0.1); color: #9a6f1a; }
+
+    /* Botón pagar fila */
+    .btn-row-pay {
+      padding: 6px 14px; border-radius: 6px; border: none;
+      background: var(--sage); color: white;
+      font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-row-pay:hover { background: var(--pine); transform: translateY(-1px); }
+    .btn-row-paid { opacity: 0; pointer-events: none; }
+
+    /* ══════════════════════════════════════════
+       MODAL PAGO
+    ══════════════════════════════════════════ */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(15,28,20,0.6); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white); border-radius: 20px;
+      width: 100%; max-width: 440px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.25);
+      animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popIn { from { opacity:0; transform:scale(0.88) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    .modal-header { padding: 28px 28px 20px; border-bottom: 1px solid var(--parchment); }
+    .modal-title  { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: var(--forest); }
+    .modal-sub    { font-size: 0.85rem; color: var(--body); margin-top: 4px; }
+    .modal-body   { padding: 24px 28px; }
+    .modal-footer { padding: 16px 28px 28px; display: flex; gap: 10px; justify-content: flex-end; }
+
+    .pay-amount-box {
+      background: var(--forest); border-radius: 12px; padding: 20px 24px;
+      text-align: center; margin-bottom: 22px;
+    }
+    .pay-amount-lbl { font-size: 0.78rem; color: rgba(255,255,255,0.5); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .pay-amount-val { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 700; color: var(--mint); }
+    .pay-amount-cuota { font-size: 0.82rem; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+    .pay-method h4 { font-size: 0.8rem; font-weight: 700; color: var(--body); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+    .method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .method-opt {
+      padding: 12px 8px; border-radius: 8px; text-align: center;
+      border: 1.5px solid var(--mist); cursor: pointer; transition: all 0.2s;
+      font-size: 0.78rem; font-weight: 600; color: var(--body);
+    }
+    .method-opt .m-icon { font-size: 1.4rem; display: block; margin-bottom: 5px; }
+    .method-opt:hover, .method-opt.selected { border-color: var(--sage); background: rgba(58,158,111,0.06); color: var(--forest); }
+
+    .btn-cancel {
+      flex: 1; padding: 11px; border-radius: 8px; border: 1.5px solid var(--mist);
+      background: transparent; color: var(--body);
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: var(--fog); }
+    .btn-confirm {
+      flex: 2; padding: 11px; border-radius: 8px; border: none;
+      background: var(--sage); color: white;
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-confirm:hover { background: var(--pine); transform: translateY(-1px); }
+
+    /* ══════════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════════ */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      background: var(--forest); color: white;
+      padding: 14px 22px; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 500;
+      box-shadow: var(--sh-float);
+      display: flex; align-items: center; gap: 10px;
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.35s cubic-bezier(.4,0,.2,1); pointer-events: none;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ══════════════════════════════════════════
+       SIN APARTAMENTO — estado vacío
+    ══════════════════════════════════════════ */
+    .no-apt-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 50vh; text-align: center; padding: 40px;
+    }
+    .no-apt-icon { font-size: 4rem; margin-bottom: 16px; opacity: 0.4; }
+    .no-apt-title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 700; color: var(--forest); margin-bottom: 8px; }
+    .no-apt-text  { font-size: 0.9rem; color: var(--body); margin-bottom: 24px; max-width: 320px; line-height: 1.7; }
+    .btn-go-select { padding: 12px 28px; border-radius: 8px; background: var(--sage); color: white; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-go-select:hover { background: var(--pine); transform: translateY(-1px); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .metrics-row { grid-template-columns: repeat(2, 1fr); }
+      .plan-summary { grid-template-columns: 1fr 1fr; }
+      .method-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .page-content, .projects-section, .pagos-top, .plan-config { padding: 20px; margin-left: 0; margin-right: 0; }
+      .apt-filters { padding: 16px 20px; }
+      .metrics-row { grid-template-columns: 1fr 1fr; }
+      .cuotas-wrap { margin: 0 16px 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="topbar-logo">🏛</span>
+      <span class="topbar-name">Inmosystem</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-user">
+        <div class="user-avatar" id="user-avatar">CL</div>
+        <span class="user-name" id="user-name-top">Cliente</span>
+      </div>
+      <button class="btn-logout" onclick="window.location='login.html'">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <ul class="sidebar-nav">
+      <li><a href="#" class="active" onclick="goView('inicio',this);return false;"><span class="nav-icon">🏠</span> Inicio</a></li>
+      <li><a href="#" onclick="goView('elegir',this);return false;"><span class="nav-icon">🏢</span> Proyectos</a></li>
+      <li><a href="#" onclick="goView('pagos',this);return false;"><span class="nav-icon">💳</span> Mis Pagos</a></li>
+    </ul>
+    <div class="sidebar-apt-badge" id="sidebar-apt-badge" style="display:none;">
+      <div class="sidebar-apt-label">Mi apartamento</div>
+      <div class="sidebar-apt-name" id="sidebar-apt-name">—</div>
+      <div class="sidebar-apt-price" id="sidebar-apt-price">—</div>
+    </div>
+  </nav>
+
+  <!-- ══ VISTAS ══ -->
+  <main class="main">
+
+    <!-- ── VISTA: INICIO ── -->
+    <div class="view" id="view-inicio">
+      <div class="dash-header">
+        <div class="dash-greeting">Bienvenido de vuelta</div>
+        <div class="dash-title" id="dash-title">Hola, Cliente 👋</div>
+        <div class="dash-sub">Aquí tienes un resumen de tu inversión con Inmosystem</div>
+        <div class="dash-apt-pill" id="dash-apt-pill" style="display:none;">
+          <span>🏢</span>
+          <span id="dash-apt-pill-text">Apartamento seleccionado</span>
+        </div>
+      </div>
+      <div class="page-content">
+        <!-- Estado sin apartamento -->
+        <div class="no-apt-state" id="no-apt-state">
+          <div class="no-apt-icon">🏗</div>
+          <div class="no-apt-title">Aún no tienes un apartamento</div>
+          <div class="no-apt-text">Explora nuestros proyectos disponibles y elige el apartamento que más se adapte a ti.</div>
+          <button class="btn-go-select" onclick="goView('elegir', null)">Ver proyectos disponibles →</button>
+        </div>
+        <!-- Dashboard con apartamento -->
+        <div id="dash-with-apt" style="display:none;">
+          <div class="metrics-row" id="metrics-row"></div>
+          <div class="next-payment" id="next-payment-box" style="display:none;">
+            <div class="next-payment-left">
+              <div class="next-payment-icon">📅</div>
+              <div>
+                <div class="next-payment-label">Próximo pago</div>
+                <div class="next-payment-info" id="next-pay-info">—</div>
+                <div class="next-payment-date" id="next-pay-date">—</div>
+              </div>
+            </div>
+            <button class="btn-pay" onclick="goView('pagos',null)">Realizar pago →</button>
+          </div>
+          <div class="progress-section">
+            <div class="progress-header">
+              <div class="progress-title">Progreso de pago</div>
+              <div class="progress-pct" id="prog-pct">0%</div>
+            </div>
+            <div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+            <div class="prog-labels">
+              <span id="prog-paid-lbl">$0 pagado</span>
+              <span id="prog-total-lbl">$0 total</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VISTA: ELEGIR APARTAMENTO ── -->
+    <div class="view" id="view-elegir">
+      <div class="select-hero">
+        <h1>Nuestros Proyectos</h1>
+        <p>Elige el apartamento que quieres adquirir y configura tu plan de pagos</p>
+      </div>
+      <div class="apt-filters">
+        <button class="f-btn active" onclick="filtrarProyectos('todos',this)">Todos</button>
+        <button class="f-btn" onclick="filtrarProyectos('1hab',this)">1 Hab.</button>
+        <button class="f-btn" onclick="filtrarProyectos('2hab',this)">2 Hab.</button>
+        <button class="f-btn" onclick="filtrarProyectos('pequeno',this)">Hasta 50 m²</button>
+        <button class="f-btn" onclick="filtrarProyectos('grande',this)">+50 m²</button>
+        <button class="f-btn" onclick="filtrarProyectos('disponible',this)">Solo disponibles</button>
+      </div>
+      <div class="projects-section">
+        <h2>Tipologías disponibles</h2>
+        <p class="sub">Haz clic en el apartamento que deseas para seleccionarlo como tu inversión</p>
+        <div class="projects-grid" id="projects-grid">
+          <p style="color:var(--body);padding:40px 0;">Cargando tipologías...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VISTA: PAGOS ── -->
+    <div class="view" id="view-pagos">
+      <div class="pagos-top">
+        <h2>Mis Pagos</h2>
+        <p>Administra tu plan de cuotas, cambia la frecuencia y registra tus pagos</p>
+      </div>
+
+      <!-- Estado sin apartamento -->
+      <div class="no-apt-state" id="no-apt-pagos" style="display:none;">
+        <div class="no-apt-icon">💳</div>
+        <div class="no-apt-title">Sin apartamento asignado</div>
+        <div class="no-apt-text">Primero elige un apartamento para ver tu plan de pagos.</div>
+        <button class="btn-go-select" onclick="goView('elegir',null)">Elegir apartamento →</button>
+      </div>
+
+      <!-- Contenido pagos -->
+      <div id="pagos-content" style="display:none;">
+        <!-- Configurador -->
+        <div class="plan-config">
+          <div class="plan-config-header">
+            <h3>Configurar plan de pagos</h3>
+            <p>Elige la frecuencia y ajusta el enganche. Los cambios se aplican de inmediato.</p>
+          </div>
+          <div class="plan-config-body">
+            <div class="plan-toggle-row">
+              <div>
+                <div class="plan-toggle-label">Frecuencia de pago</div>
+                <div class="plan-toggle-sub">Cambia cuándo realizas tus pagos</div>
+              </div>
+              <div class="toggle-group">
+                <button class="toggle-opt" id="toggle-quincenal" onclick="cambiarFrecuencia('quincenal')">Quincenal</button>
+                <button class="toggle-opt active" id="toggle-mensual" onclick="cambiarFrecuencia('mensual')">Mensual</button>
+              </div>
+            </div>
+            <div class="plan-toggle-row">
+              <div>
+                <div class="plan-toggle-label">Plazo</div>
+                <div class="plan-toggle-sub">Número de <span id="plazo-unidad">meses</span></div>
+              </div>
+              <div class="toggle-group">
+                <button class="toggle-opt active" id="toggle-12" onclick="cambiarPlazo(12)">12</button>
+                <button class="toggle-opt" id="toggle-24" onclick="cambiarPlazo(24)">24</button>
+                <button class="toggle-opt" id="toggle-36" onclick="cambiarPlazo(36)">36</button>
+                <button class="toggle-opt" id="toggle-48" onclick="cambiarPlazo(48)">48</button>
+              </div>
+            </div>
+            <div class="plan-summary" id="plan-summary"></div>
+          </div>
+        </div>
+
+        <!-- Tabla cuotas -->
+        <div class="cuotas-wrap">
+          <div class="cuotas-toolbar">
+            <h3>Calendario de cuotas</h3>
+            <div class="cuotas-filter">
+              <button class="cf-btn active" onclick="filtrarCuotas('todas',this)">Todas</button>
+              <button class="cf-btn" onclick="filtrarCuotas('pendiente',this)">Pendientes</button>
+              <button class="cf-btn" onclick="filtrarCuotas('pagada',this)">Pagadas</button>
+            </div>
+          </div>
+          <div class="cuotas-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Fecha</th>
+                  <th>Monto</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="cuotas-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL PAGO -->
+  <div class="modal-overlay" id="modal-pago">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Realizar pago</div>
+        <div class="modal-sub" id="modal-pago-sub">Cuota #1 — Ene 2025</div>
+      </div>
+      <div class="modal-body">
+        <div class="pay-amount-box">
+          <div class="pay-amount-lbl">Monto a pagar</div>
+          <div class="pay-amount-val" id="modal-pago-monto">$0</div>
+          <div class="pay-amount-cuota" id="modal-pago-cuota-info">Cuota 1 de 12</div>
+        </div>
+        <div class="pay-method">
+          <h4>Método de pago</h4>
+          <div class="method-grid">
+            <div class="method-opt selected" onclick="selectMetodo(this,'transferencia')"><span class="m-icon">🏦</span>Transferencia</div>
+            <div class="method-opt" onclick="selectMetodo(this,'efectivo')"><span class="m-icon">💵</span>Efectivo</div>
+            <div class="method-opt" onclick="selectMetodo(this,'tarjeta')"><span class="m-icon">💳</span>Tarjeta</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="cerrarModalPago()">Cancelar</button>
+        <button class="btn-confirm" onclick="confirmarPago()">✓ Confirmar pago</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><span id="toast-msg">✅ Listo</span></div>
+
+  <script>
+  // ══════════════════════════════════════════════
+  // ESTADO GLOBAL
+  // ══════════════════════════════════════════════
+  const CLIENTE = {
+    nombre: 'Carlos López',
+    iniciales: 'CL',
+    apartamentoId: null,   // id de la tipología elegida
+    frecuencia: 'mensual', // 'mensual' | 'quincenal'
+    plazo: 12,             // número de periodos
+    cuotas: []             // [{id, fecha, monto, estado}]
+  };
+
+  let cuotaActiva = null; // índice de la cuota que se va a pagar
+
+  // Defaults espejo de admin.html
+  const DEFAULT_TIPOLOGIAS = [
+    { id:1, nombre:'Apartamento Tipo C', area:36, hab:1, banos:1, precio:"$422'760.000", estado:'Disponible', img:'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=800&q=80', proyecto:'Proyecto Águila' },
+    { id:2, nombre:'Apartamento Tipo E', area:72.3, hab:2, banos:2, precio:"$739'066.800", estado:'Disponible', img:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&q=80', proyecto:'Proyecto Águila' },
+    { id:3, nombre:'Apartamento Tipo F', area:75.5, hab:2, banos:2, precio:"$766'831.000", estado:'Disponible', img:'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80', proyecto:'Proyecto Águila' },
+    { id:4, nombre:'Apartamento Tipo G', area:56.5, hab:2, banos:1, precio:"$610'820.000", estado:'Últimas unidades', img:'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=800&q=80', proyecto:'Proyecto Águila' }
+  ];
+
+  function cargarTipologias() {
+    const data = localStorage.getItem('inmo_tipologias');
+    const list = data ? JSON.parse(data) : DEFAULT_TIPOLOGIAS;
+    // Asegurar campo "proyecto"
+    return list.map(t => ({ proyecto: 'Proyecto Águila', ...t }));
+  }
+
+  function precioNumerico(precioStr) {
+    return parseInt((precioStr || '0').replace(/[^0-9]/g, '')) || 0;
+  }
+
+  function formatCOP(n) {
+    return '$' + Math.round(n).toLocaleString('es-CO');
+  }
+
+  // ══════════════════════════════════════════════
+  // NAVEGACIÓN
+  // ══════════════════════════════════════════════
+  function goView(name, linkEl) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+    if (linkEl) linkEl.classList.add('active');
+
+    if (name === 'elegir')  renderProyectos();
+    if (name === 'inicio')  renderDashboard();
+    if (name === 'pagos')   renderPagos();
+  }
+
+  // ══════════════════════════════════════════════
+  // RENDER PROYECTOS
+  // ══════════════════════════════════════════════
+  let filtroProyecto = 'todos';
+
+  function renderProyectos() {
+    const tipologias = cargarTipologias();
+    const grid = document.getElementById('projects-grid');
+
+    const filtrados = tipologias.filter(t => {
+      if (filtroProyecto === '1hab')      return t.hab === 1;
+      if (filtroProyecto === '2hab')      return t.hab >= 2;
+      if (filtroProyecto === 'pequeno')   return t.area <= 50;
+      if (filtroProyecto === 'grande')    return t.area > 50;
+      if (filtroProyecto === 'disponible') return t.estado === 'Disponible';
+      return true;
+    });
+
+    if (!filtrados.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--body);">🔍 No se encontraron tipologías con ese filtro</div>`;
+      return;
+    }
+
+    const badge = e => e === 'Disponible' ? 'disponible' : e === 'Últimas unidades' ? 'limitado' : 'agotado';
+
+    grid.innerHTML = filtrados.map(t => {
+      const selected = CLIENTE.apartamentoId === t.id;
+      const precioNum = precioNumerico(t.precio);
+      const cuotaMensual = Math.round(precioNum / 12);
+      return `
+        <div class="project-card ${selected ? 'selected-apt' : ''}" id="pcard-${t.id}">
+          <div class="pc-img">
+            <span class="pc-status ${badge(t.estado)}">${t.estado}</span>
+            <div class="pc-selected-crown">★</div>
+            <img src="${t.img}" alt="${t.nombre}" onerror="this.src='https://images.unsplash.com/photo-1554995207-c18c203602cb?w=800&q=80'" />
+          </div>
+          <div class="pc-body">
+            <div class="pc-project-tag">🏙 ${t.proyecto}</div>
+            <div class="pc-name">${t.nombre}</div>
+            <div class="pc-specs">
+              <div class="pc-spec">📐 ${t.area} m²</div>
+              <div class="pc-spec">🛏 ${t.hab} hab.</div>
+              <div class="pc-spec">🚿 ${t.banos} baños</div>
+            </div>
+            <div class="pc-price">Desde ${t.precio}</div>
+            <div class="pc-price-sub">~${formatCOP(cuotaMensual)}/mes a 12 meses</div>
+            <button class="btn-select" onclick="seleccionarApartamento(${t.id})">
+              ${selected ? '★ Apartamento seleccionado' : 'Seleccionar este apartamento'}
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function filtrarProyectos(tipo, btn) {
+    document.querySelectorAll('.apt-filters .f-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filtroProyecto = tipo;
+    renderProyectos();
+  }
+
+  function seleccionarApartamento(id) {
+    const tipologias = cargarTipologias();
+    const apt = tipologias.find(t => t.id === id);
+    if (!apt) return;
+
+    CLIENTE.apartamentoId = id;
+    generarCuotas();
+    actualizarSidebarApt(apt);
+    renderProyectos();
+
+    mostrarToast(`🏢 ${apt.nombre} seleccionado`);
+
+    setTimeout(() => goView('pagos', null), 800);
+  }
+
+  // ══════════════════════════════════════════════
+  // GENERAR CUOTAS
+  // ══════════════════════════════════════════════
+  function generarCuotas() {
+    const tipologias = cargarTipologias();
+    const apt = tipologias.find(t => t.id === CLIENTE.apartamentoId);
+    if (!apt) return;
+
+    const total    = precioNumerico(apt.precio);
+    const periodos = CLIENTE.frecuencia === 'mensual' ? CLIENTE.plazo : CLIENTE.plazo * 2;
+    const montoCuota = Math.round(total / periodos);
+    const diasIntervalo = CLIENTE.frecuencia === 'mensual' ? 30 : 15;
+
+    // Conservar estados de cuotas pagadas si el id coincide
+    const anteriores = CLIENTE.cuotas.reduce((acc, c) => { acc[c.id] = c.estado; return acc; }, {});
+
+    const hoy = new Date();
+    CLIENTE.cuotas = Array.from({ length: periodos }, (_, i) => {
+      const fecha = new Date(hoy);
+      fecha.setDate(fecha.getDate() + diasIntervalo * (i + 1));
+      const id = i + 1;
+      let estado = anteriores[id] || (i === 0 ? 'proxima' : 'pendiente');
+      return {
+        id,
+        fecha: fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }),
+        fechaObj: fecha,
+        monto: montoCuota,
+        estado
+      };
+    });
+
+    // Marcar la primera pendiente como "proxima"
+    const primeraPendiente = CLIENTE.cuotas.find(c => c.estado === 'pendiente');
+    if (primeraPendiente) primeraPendiente.estado = 'proxima';
+  }
+
+  function cambiarFrecuencia(f) {
+    CLIENTE.frecuencia = f;
+    document.getElementById('toggle-quincenal').classList.toggle('active', f === 'quincenal');
+    document.getElementById('toggle-mensual').classList.toggle('active', f === 'mensual');
+    document.getElementById('plazo-unidad').textContent = f === 'mensual' ? 'meses' : 'quincenas';
+    generarCuotas();
+    renderPlanSummary();
+    renderCuotasTabla('todas');
+    mostrarToast(`🔄 Plan cambiado a ${f}`);
+  }
+
+  function cambiarPlazo(p) {
+    CLIENTE.plazo = p;
+    [12,24,36,48].forEach(n => {
+      document.getElementById('toggle-' + n)?.classList.toggle('active', n === p);
+    });
+    generarCuotas();
+    renderPlanSummary();
+    renderCuotasTabla('todas');
+  }
+
+  // ══════════════════════════════════════════════
+  // RENDER PAGOS
+  // ══════════════════════════════════════════════
+  let filtroCuotas = 'todas';
+
+  function renderPagos() {
+    const sinApt = document.getElementById('no-apt-pagos');
+    const conApt = document.getElementById('pagos-content');
+
+    if (!CLIENTE.apartamentoId) {
+      sinApt.style.display = 'flex';
+      conApt.style.display = 'none';
+      return;
+    }
+    sinApt.style.display = 'none';
+    conApt.style.display = 'block';
+
+    // Asegurarse que el toggle inicial está correcto
+    document.getElementById('toggle-mensual').classList.toggle('active', CLIENTE.frecuencia === 'mensual');
+    document.getElementById('toggle-quincenal').classList.toggle('active', CLIENTE.frecuencia === 'quincenal');
+    document.getElementById('plazo-unidad').textContent = CLIENTE.frecuencia === 'mensual' ? 'meses' : 'quincenas';
+    [12,24,36,48].forEach(n => {
+      document.getElementById('toggle-' + n)?.classList.toggle('active', n === CLIENTE.plazo);
+    });
+
+    renderPlanSummary();
+    renderCuotasTabla(filtroCuotas);
+  }
+
+  function renderPlanSummary() {
+    const tipologias = cargarTipologias();
+    const apt   = tipologias.find(t => t.id === CLIENTE.apartamentoId);
+    if (!apt) return;
+
+    const total      = precioNumerico(apt.precio);
+    const periodos   = CLIENTE.cuotas.length;
+    const montoCuota = periodos > 0 ? CLIENTE.cuotas[0].monto : 0;
+    const pagadas    = CLIENTE.cuotas.filter(c => c.estado === 'pagada').length;
+    const totalPagado = pagadas * montoCuota;
+
+    document.getElementById('plan-summary').innerHTML = `
+      <div class="plan-sum-item">
+        <div class="plan-sum-lbl">Valor cuota</div>
+        <div class="plan-sum-val">${formatCOP(montoCuota)}</div>
+        <div class="plan-sum-sub">cada ${CLIENTE.frecuencia === 'mensual' ? 'mes' : 'quincena'}</div>
+      </div>
+      <div class="plan-sum-item">
+        <div class="plan-sum-lbl">Total cuotas</div>
+        <div class="plan-sum-val">${periodos}</div>
+        <div class="plan-sum-sub">${CLIENTE.plazo} ${CLIENTE.frecuencia === 'mensual' ? 'meses' : 'quincenas'}</div>
+      </div>
+      <div class="plan-sum-item">
+        <div class="plan-sum-lbl">Pagado</div>
+        <div class="plan-sum-val">${pagadas}</div>
+        <div class="plan-sum-sub">${formatCOP(totalPagado)}</div>
+      </div>
+    `;
+  }
+
+  function renderCuotasTabla(filtro) {
+    filtroCuotas = filtro;
+    const tbody = document.getElementById('cuotas-tbody');
+    let lista = CLIENTE.cuotas;
+
+    if (filtro === 'pendiente') lista = lista.filter(c => c.estado !== 'pagada');
+    if (filtro === 'pagada')    lista = lista.filter(c => c.estado === 'pagada');
+
+    const badgeMap = {
+      pagada:    '<span class="cbadge pagada">✓ Pagada</span>',
+      pendiente: '<span class="cbadge pendiente">⏳ Pendiente</span>',
+      vencida:   '<span class="cbadge vencida">⚠ Vencida</span>',
+      proxima:   '<span class="cbadge proxima">📅 Próxima</span>',
+    };
+
+    if (!lista.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:48px;color:var(--body);">No hay cuotas en esta categoría</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lista.map(c => `
+      <tr>
+        <td><span class="cuota-num">#${String(c.id).padStart(2,'0')}</span></td>
+        <td>${c.fecha}</td>
+        <td><span class="cuota-monto">${formatCOP(c.monto)}</span></td>
+        <td>${badgeMap[c.estado] || ''}</td>
+        <td>
+          ${c.estado !== 'pagada'
+            ? `<button class="btn-row-pay" onclick="abrirModalPago(${c.id - 1})">Pagar</button>`
+            : `<span style="font-size:0.78rem;color:var(--sage);font-weight:600;">✓ Completado</span>`
+          }
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function filtrarCuotas(tipo, btn) {
+    document.querySelectorAll('.cf-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCuotasTabla(tipo);
+  }
+
+  // ══════════════════════════════════════════════
+  // MODAL PAGO
+  // ══════════════════════════════════════════════
+  function abrirModalPago(index) {
+    cuotaActiva = index;
+    const c = CLIENTE.cuotas[index];
+    if (!c) return;
+
+    document.getElementById('modal-pago-sub').textContent       = `Cuota #${c.id} — ${c.fecha}`;
+    document.getElementById('modal-pago-monto').textContent     = formatCOP(c.monto);
+    document.getElementById('modal-pago-cuota-info').textContent = `Cuota ${c.id} de ${CLIENTE.cuotas.length}`;
+    // Reset método
+    document.querySelectorAll('.method-opt').forEach((el,i) => el.classList.toggle('selected', i === 0));
+    document.getElementById('modal-pago').classList.add('open');
+  }
+
+  function cerrarModalPago() {
+    document.getElementById('modal-pago').classList.remove('open');
+    cuotaActiva = null;
+  }
+
+  function selectMetodo(el, _) {
+    document.querySelectorAll('.method-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function confirmarPago() {
+    if (cuotaActiva === null) return;
+    CLIENTE.cuotas[cuotaActiva].estado = 'pagada';
+
+    // Marcar la siguiente pendiente como "proxima"
+    const sig = CLIENTE.cuotas.find(c => c.estado === 'pendiente');
+    if (sig) sig.estado = 'proxima';
+
+    cerrarModalPago();
+    renderCuotasTabla(filtroCuotas);
+    renderPlanSummary();
+    renderDashboard();
+    mostrarToast('✅ Pago registrado exitosamente');
+  }
+
+  // Click fuera del modal
+  document.getElementById('modal-pago').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-pago')) cerrarModalPago();
+  });
+
+  // ══════════════════════════════════════════════
+  // DASHBOARD
+  // ══════════════════════════════════════════════
+  function renderDashboard() {
+    const noApt   = document.getElementById('no-apt-state');
+    const withApt = document.getElementById('dash-with-apt');
+    const pill    = document.getElementById('dash-apt-pill');
+
+    if (!CLIENTE.apartamentoId) {
+      noApt.style.display   = 'flex';
+      withApt.style.display = 'none';
+      pill.style.display    = 'none';
+      return;
+    }
+
+    noApt.style.display   = 'none';
+    withApt.style.display = 'block';
+    pill.style.display    = 'inline-flex';
+
+    const tipologias = cargarTipologias();
+    const apt = tipologias.find(t => t.id === CLIENTE.apartamentoId);
+    if (!apt) return;
+
+    document.getElementById('dash-apt-pill-text').textContent = apt.nombre + ' · ' + apt.proyecto;
+
+    const total      = precioNumerico(apt.precio);
+    const periodos   = CLIENTE.cuotas.length;
+    const montoCuota = periodos > 0 ? CLIENTE.cuotas[0].monto : 0;
+    const pagadas    = CLIENTE.cuotas.filter(c => c.estado === 'pagada').length;
+    const totalPagado = pagadas * montoCuota;
+    const restante   = total - totalPagado;
+    const pct        = total > 0 ? Math.round((totalPagado / total) * 100) : 0;
+
+    // Métricas
+    document.getElementById('metrics-row').innerHTML = `
+      <div class="metric-card">
+        <div class="metric-icon">🏢</div>
+        <div class="metric-val">${apt.area} m²</div>
+        <div class="metric-lbl">${apt.nombre}</div>
+        <div class="metric-sub">${apt.proyecto}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">✅</div>
+        <div class="metric-val">${pagadas}</div>
+        <div class="metric-lbl">Cuotas pagadas</div>
+        <div class="metric-sub">de ${periodos} total</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">💰</div>
+        <div class="metric-val" style="font-size:1.3rem">${formatCOP(totalPagado)}</div>
+        <div class="metric-lbl">Total abonado</div>
+        <div class="metric-sub">${pct}% del valor</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">📋</div>
+        <div class="metric-val" style="font-size:1.3rem">${formatCOP(restante)}</div>
+        <div class="metric-lbl">Saldo pendiente</div>
+        <div class="metric-sub">${periodos - pagadas} cuotas restantes</div>
+      </div>
+    `;
+
+    // Próximo pago
+    const proxima = CLIENTE.cuotas.find(c => c.estado === 'proxima' || c.estado === 'pendiente' || c.estado === 'vencida');
+    const nextBox = document.getElementById('next-payment-box');
+    if (proxima) {
+      nextBox.style.display = 'flex';
+      document.getElementById('next-pay-info').textContent = formatCOP(proxima.monto);
+      document.getElementById('next-pay-date').textContent = 'Fecha: ' + proxima.fecha + ' · Cuota #' + proxima.id;
+    } else {
+      nextBox.style.display = 'none';
+    }
+
+    // Barra progreso
+    document.getElementById('prog-bar').style.width  = pct + '%';
+    document.getElementById('prog-pct').textContent  = pct + '%';
+    document.getElementById('prog-paid-lbl').textContent  = formatCOP(totalPagado) + ' pagado';
+    document.getElementById('prog-total-lbl').textContent = formatCOP(total) + ' total';
+  }
+
+  // ══════════════════════════════════════════════
+  // SIDEBAR — info apartamento elegido
+  // ══════════════════════════════════════════════
+  function actualizarSidebarApt(apt) {
+    const badge = document.getElementById('sidebar-apt-badge');
+    badge.style.display = 'block';
+    document.getElementById('sidebar-apt-name').textContent  = apt.nombre;
+    document.getElementById('sidebar-apt-price').textContent = apt.precio;
+  }
+
+  // ══════════════════════════════════════════════
+  // TOAST
+  // ══════════════════════════════════════════════
+  function mostrarToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  // ══════════════════════════════════════════════
+  // INIT
+  // ══════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', () => {
+    // Datos del cliente (en un sistema real vendrían del login)
+    document.getElementById('dash-title').textContent    = 'Hola, ' + CLIENTE.nombre.split(' ')[0] + ' 👋';
+    document.getElementById('user-name-top').textContent = CLIENTE.nombre;
+    document.getElementById('user-avatar').textContent   = CLIENTE.iniciales;
+
+    // Activar vista inicio
+    goView('inicio', document.querySelector('.sidebar-nav a'));
+  });
+
+  // Escuchar cambios del admin en tiempo real
+  window.addEventListener('storage', e => {
+    if (e.key === 'inmo_tipologias') {
+      renderProyectos();
+    }
+  });
+  </script>
+</body>
+</html>
