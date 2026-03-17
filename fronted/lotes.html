@@ -1,49 +1,539 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<title>Lotes</title>
-<link rel="stylesheet" href="assets/css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inmosystem - Tipologías</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark:   #1a3a2a;
+      --green-mid:    #2d6a4f;
+      --green-accent: #3a9e6f;
+      --green-light:  #52b788;
+      --cream:        #f5f0e8;
+      --cream-dark:   #ede8dc;
+      --text-dark:    #1c2b22;
+      --text-muted:   #5a6e5e;
+      --white:        #ffffff;
+      --shadow:       0 4px 24px rgba(0,0,0,0.10);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Arial', sans-serif; background: var(--cream); color: var(--text-dark); }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 68px;
+      background: rgba(245,240,232,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(42,106,79,0.12);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--green-dark); }
+    .logo-icon { font-size: 1.4rem; }
+    .logo-text { font-family: 'Arial', serif; font-size: 1.25rem; font-weight: 700; color: var(--green-dark); letter-spacing: 0.02em; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--text-muted); font-size: 0.92rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--green-accent); }
+    .nav-actions { display: flex; align-items: center; gap: 16px; }
+    .btn-link { text-decoration: none; color: var(--text-dark); font-size: 0.92rem; font-weight: 500; }
+    .btn-link:hover { color: var(--green-accent); }
+    .btn-primary {
+      display: inline-block; background: var(--green-accent); color: var(--white);
+      text-decoration: none; padding: 9px 22px; border-radius: 6px;
+      font-size: 0.92rem; font-weight: 600; transition: background 0.2s, transform 0.15s;
+      border: none; cursor: pointer; font-family: 'Arial', sans-serif;
+    }
+    .btn-primary:hover { background: var(--green-mid); transform: translateY(-1px); }
+
+    /* VISTAS */
+    #vista-lista   { display: block; padding-top: 68px; }
+    #vista-detalle { display: none; padding-top: 68px; }
+
+    /* ══ LISTA ══ */
+    .lista-hero {
+      background: var(--green-dark);
+      padding: 64px 60px 52px; text-align: center; position: relative; overflow: hidden;
+    }
+    .lista-hero::before { content:''; position:absolute; top:-80px; right:-80px; width:320px; height:320px; border-radius:50%; background:rgba(82,183,136,0.07); }
+    .lista-hero::after  { content:''; position:absolute; bottom:-60px; left:-60px; width:220px; height:220px; border-radius:50%; background:rgba(82,183,136,0.05); }
+    .lista-hero h1 { font-family:'Arial',serif; font-size:clamp(2rem,4vw,3rem); font-weight:900; color:var(--white); margin-bottom:12px; position:relative; z-index:1; }
+    .lista-hero p  { color:rgba(255,255,255,0.65); font-size:1rem; font-weight:300; position:relative; z-index:1; }
+
+    .filtros {
+      display:flex; gap:10px; justify-content:center;
+      padding:28px 60px; flex-wrap:wrap;
+      background:var(--cream-dark);
+      border-bottom:1px solid rgba(42,106,79,0.08);
+    }
+    .filtro-btn {
+      padding:8px 20px; border-radius:999px;
+      border:1.5px solid rgba(42,106,79,0.2);
+      background:var(--white); color:var(--text-muted);
+      font-size:0.85rem; font-weight:600; cursor:pointer;
+      font-family:'Arial',sans-serif; transition:all 0.2s;
+    }
+    .filtro-btn:hover, .filtro-btn.active { background:var(--green-accent); color:var(--white); border-color:var(--green-accent); }
+
+    .lotes-grid {
+      display:grid; grid-template-columns:repeat(2,1fr);
+      gap:28px; max-width:1100px; margin:52px auto; padding:0 60px;
+    }
+
+    .lote-card {
+      background:var(--white); border-radius:16px;
+      border:1.5px solid rgba(42,106,79,0.1); box-shadow:var(--shadow);
+      overflow:hidden; cursor:pointer;
+      transition:transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+    }
+    .lote-card:hover { transform:translateY(-6px); box-shadow:0 16px 48px rgba(0,0,0,0.13); border-color:var(--green-accent); }
+
+    .lote-card-img { height:200px; overflow:hidden; position:relative; }
+    .lote-card-img img { width:100%; height:100%; object-fit:cover; transition:transform 0.5s; }
+    .lote-card:hover .lote-card-img img { transform:scale(1.06); }
+
+    .lote-badge {
+      position:absolute; top:14px; left:14px;
+      padding:5px 14px; border-radius:999px;
+      font-size:0.75rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.04em;
+    }
+    .lote-badge.disponible   { background:var(--green-accent); color:white; }
+    .lote-badge.limitado     { background:#fb8c00; color:white; }
+    .lote-badge.agotado      { background:#e53935; color:white; }
+
+    .lote-card-body { padding:24px 26px 28px; }
+    .lote-card-header { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+    .lote-card-icon { font-size:1.3rem; }
+    .lote-card-name { font-family:'Arial',serif; font-size:1.15rem; font-weight:700; color:var(--green-dark); }
+    .lote-specs { list-style:none; margin-bottom:18px; }
+    .lote-specs li { display:flex; justify-content:space-between; font-size:0.88rem; color:var(--text-muted); padding:6px 0; border-bottom:1px solid rgba(42,106,79,0.07); }
+    .lote-specs li:last-child { border-bottom:none; }
+    .lote-specs li strong { color:var(--text-dark); font-weight:600; }
+    .lote-card-footer { display:flex; align-items:center; justify-content:space-between; margin-top:4px; }
+    .lote-price { font-size:1.1rem; font-weight:700; color:var(--green-accent); }
+    .lote-ver { display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:600; color:var(--green-mid); transition:gap 0.2s; }
+    .lote-card:hover .lote-ver { gap:10px; }
+
+    .lotes-empty { grid-column:1/-1; text-align:center; padding:80px 20px; color:var(--text-muted); }
+    .lotes-empty span { font-size:2.5rem; display:block; margin-bottom:12px; }
+
+    /* ══ DETALLE ══ */
+    .det-gallery { display:grid; grid-template-columns:2fr 1fr; grid-template-rows:300px 220px; gap:4px; }
+    .det-gallery-main { grid-row:1/3; position:relative; overflow:hidden; }
+    .det-gallery-main img { width:100%; height:100%; object-fit:cover; transition:transform 0.5s; }
+    .det-gallery-main:hover img { transform:scale(1.03); }
+    .det-gallery-thumb { position:relative; overflow:hidden; cursor:pointer; }
+    .det-gallery-thumb img { width:100%; height:100%; object-fit:cover; transition:transform 0.4s; }
+    .det-gallery-thumb:hover img { transform:scale(1.05); }
+    .det-gallery-dim { position:absolute; inset:0; background:rgba(26,58,42,0.35); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s; }
+    .det-gallery-thumb:hover .det-gallery-dim { opacity:1; }
+    .det-gallery-dim span { color:white; font-size:0.85rem; font-weight:600; }
+    .det-gallery-badge { position:absolute; top:22px; left:22px; z-index:2; color:white; padding:6px 16px; border-radius:999px; font-size:0.78rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; }
+    .det-gallery-badge.disponible   { background:var(--green-accent); }
+    .det-gallery-badge.limitado     { background:#fb8c00; }
+    .det-gallery-badge.agotado      { background:#e53935; }
+
+    .breadcrumb { padding:14px 60px; font-size:0.82rem; color:var(--text-muted); display:flex; align-items:center; gap:8px; background:var(--cream-dark); border-bottom:1px solid rgba(42,106,79,0.08); }
+    .breadcrumb a { color:var(--green-accent); text-decoration:none; cursor:pointer; }
+    .breadcrumb a:hover { text-decoration:underline; }
+
+    .det-wrap { max-width:1100px; margin:0 auto; padding:52px 60px; }
+
+    .det-header { margin-bottom:40px; }
+    .det-tag { display:inline-block; background:rgba(58,158,111,0.1); color:var(--green-accent); border:1px solid rgba(58,158,111,0.25); border-radius:999px; padding:5px 14px; font-size:0.78rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:14px; }
+    .det-title { font-family:'Arial',serif; font-size:clamp(2.2rem,4vw,3rem); font-weight:900; color:var(--text-dark); line-height:1.1; margin-bottom:12px; }
+    .det-subtitle { font-size:1rem; color:var(--text-muted); font-weight:300; line-height:1.8; max-width:680px; }
+
+    .det-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:36px 0; }
+    .stat-box { background:var(--white); border-radius:12px; padding:22px 16px; text-align:center; border:1px solid rgba(42,106,79,0.1); box-shadow:var(--shadow); transition:transform 0.2s; }
+    .stat-box:hover { transform:translateY(-3px); }
+    .stat-icon { font-size:1.6rem; margin-bottom:8px; }
+    .stat-value { font-family:' Arial',serif; font-size:1.4rem; font-weight:900; color:var(--green-dark); margin-bottom:4px; }
+    .stat-label { font-size:0.8rem; color:var(--text-muted); font-weight:500; }
+
+    .section-block { margin-bottom:52px; }
+    .section-heading { font-family:'Arial',serif; font-size:1.6rem; font-weight:900; color:var(--text-dark); margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid rgba(42,106,79,0.1); }
+    .det-desc { font-size:0.97rem; color:var(--text-muted); line-height:1.85; max-width:760px; }
+
+    .caract-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .caract-item { display:flex; align-items:center; gap:12px; background:var(--white); border-radius:10px; padding:16px 18px; border:1px solid rgba(42,106,79,0.1); box-shadow:var(--shadow); }
+    .caract-icon { font-size:1.4rem; flex-shrink:0; }
+    .caract-text { font-size:0.88rem; color:var(--text-dark); font-weight:500; line-height:1.4; }
+    .caract-text span { display:block; font-size:0.78rem; color:var(--text-muted); font-weight:400; }
+
+    .etapas-timeline { display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative; }
+    .etapas-timeline::before { content:''; position:absolute; top:36px; left:10%; right:10%; height:2px; background:linear-gradient(to right,var(--green-accent),var(--green-light)); z-index:0; }
+    .etapa-item { display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 12px; position:relative; z-index:1; }
+    .etapa-circle { width:72px; height:72px; border-radius:50%; background:var(--white); border:3px solid var(--green-accent); display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin-bottom:16px; box-shadow:0 4px 16px rgba(58,158,111,0.2); transition:transform 0.2s; }
+    .etapa-item:hover .etapa-circle { transform:scale(1.1); }
+    .etapa-circle.active { background:var(--green-accent); }
+    .etapa-num-badge { position:absolute; top:-6px; right:calc(50% - 42px); background:var(--green-dark); color:white; width:20px; height:20px; border-radius:50%; font-size:0.65rem; font-weight:900; display:flex; align-items:center; justify-content:center; }
+    .etapa-title { font-family:'Arial',serif; font-size:1rem; font-weight:700; color:var(--green-dark); margin-bottom:6px; }
+    .etapa-desc  { font-size:0.82rem; color:var(--text-muted); line-height:1.6; }
+    .etapa-status-lbl { margin-top:8px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
+    .etapa-status-lbl.completado   { color:var(--green-accent); }
+    .etapa-status-lbl.en-curso     { color:#fb8c00; }
+    .etapa-status-lbl.proximamente { color:#b0bdb5; }
+
+    .cta-section { background:var(--green-dark); border-radius:20px; padding:52px 60px; text-align:center; margin-bottom:56px; position:relative; overflow:hidden; }
+    .cta-section::before { content:''; position:absolute; top:-60px; right:-60px; width:260px; height:260px; border-radius:50%; background:rgba(82,183,136,0.08); }
+    .cta-section::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(82,183,136,0.06); }
+    .cta-section h2 { font-family:'Arial',serif; font-size:2rem; font-weight:900; color:var(--white); margin-bottom:12px; position:relative; z-index:1; }
+    .cta-section p  { color:rgba(255,255,255,0.65); font-size:1rem; font-weight:300; margin-bottom:28px; position:relative; z-index:1; }
+    .cta-btns { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; position:relative; z-index:1; }
+    .btn-cta-white { display:inline-block; background:var(--white); color:var(--green-dark); padding:13px 32px; border-radius:8px; font-size:1rem; font-weight:700; text-decoration:none; transition:transform 0.2s,box-shadow 0.2s; }
+    .btn-cta-white:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.2); }
+    .btn-cta-outline { display:inline-block; border:2px solid rgba(255,255,255,0.4); color:var(--white); padding:13px 32px; border-radius:8px; font-size:1rem; font-weight:600; text-decoration:none; cursor:pointer; background:transparent; font-family:'Arial',sans-serif; transition:border-color 0.2s,background 0.2s; }
+    .btn-cta-outline:hover { border-color:white; background:rgba(255,255,255,0.08); }
+
+    .footer { background:var(--green-dark); color:rgba(255,255,255,0.85); }
+    .footer-inner { display:grid; grid-template-columns:2fr 1.5fr 1fr; gap:48px; padding:64px 60px 40px; max-width:1200px; margin:0 auto; }
+    .footer-brand p { margin-top:14px; font-size:0.875rem; color:rgba(255,255,255,0.55); line-height:1.7; max-width:300px; }
+    .footer-col h5 { font-weight:700; color:var(--white); margin-bottom:16px; letter-spacing:0.04em; text-transform:uppercase; font-size:0.8rem; }
+    .footer-col p   { font-size:0.875rem; color:rgba(255,255,255,0.55); margin-bottom:8px; }
+    .footer-col a   { display:block; text-decoration:none; color:rgba(255,255,255,0.55); font-size:0.875rem; margin-bottom:8px; transition:color 0.2s; }
+    .footer-col a:hover { color:var(--green-light); }
+    .footer-bottom { border-top:1px solid rgba(255,255,255,0.1); text-align:center; padding:20px; font-size:0.8rem; color:rgba(255,255,255,0.35); }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation:fadeUp 0.6s ease both; }
+
+    @media (max-width:1024px) { .det-stats { grid-template-columns:repeat(2,1fr); } .caract-grid { grid-template-columns:repeat(2,1fr); } .etapas-timeline { grid-template-columns:repeat(2,1fr); gap:24px; } .etapas-timeline::before { display:none; } }
+    @media (max-width:768px) {
+      .navbar { padding:0 20px; } .nav-links { display:none; }
+      .lotes-grid { grid-template-columns:1fr; padding:0 20px; }
+      .lista-hero { padding:48px 20px 36px; } .filtros { padding:20px; }
+      .det-gallery { grid-template-columns:1fr; grid-template-rows:260px 150px 150px; }
+      .det-gallery-main { grid-row:auto; }
+      .det-wrap { padding:36px 20px; } .breadcrumb { padding:14px 20px; }
+      .caract-grid { grid-template-columns:1fr; }
+      .footer-inner { grid-template-columns:1fr; padding:40px 24px 28px; gap:32px; }
+      .cta-section { padding:40px 20px; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="sidebar">
-<h2>InmoSystem</h2>
-<a href="dashboard.html">Dashboard</a>
-<a href="lotes.html">Lotes</a>
-<a href="pagos.html">Pagos</a>
-<a href="pqrs.html">PQRS</a>
-</div>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-icon">🏛</span>
+      <span class="logo-text">Inmosystem</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#tipologias">Tipologías</a></li>
+      <li><a href="index.html#etapas">Etapas</a></li>
+      <li><a href="index.html#contacto">Contacto</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-link">Ingresar</a>
+      <a href="register.html" class="btn-primary">Registrarse</a>
+    </div>
+  </nav>
 
-<div class="main">
-<h1>Lotes Disponibles</h1>
+  <!-- ══ VISTA LISTA ══ -->
+  <div id="vista-lista">
+    <div class="lista-hero">
+      <h1>Tipologías de Inmuebles</h1>
+      <p>Encuentra el espacio ideal para ti y tu familia</p>
+    </div>
+    <div class="filtros">
+      <button class="filtro-btn active" onclick="filtrar('todos',this)">Todos</button>
+      <button class="filtro-btn" onclick="filtrar('1hab',this)">1 Habitación</button>
+      <button class="filtro-btn" onclick="filtrar('2hab',this)">2 Habitaciones</button>
+      <button class="filtro-btn" onclick="filtrar('pequeno',this)">Hasta 50 m²</button>
+      <button class="filtro-btn" onclick="filtrar('grande',this)">Más de 50 m²</button>
+    </div>
+    <div class="lotes-grid" id="lotes-grid-container"></div>
+  </div>
 
-<div class="card">
-<select id="filtroEstado" onchange="filtrarLotes()">
-<option value="">Todos</option>
-<option value="Disponible">Disponible</option>
-<option value="Reservado">Reservado</option>
-<option value="Vendido">Vendido</option>
-</select>
-</div>
+  <!-- ══ VISTA DETALLE ══ -->
+  <div id="vista-detalle">
+    <div class="det-gallery" id="det-gallery">
+      <div class="det-gallery-main">
+        <span class="det-gallery-badge disponible" id="det-badge">Disponible</span>
+        <img id="det-img-main" src="" alt="Principal" />
+      </div>
+      <div class="det-gallery-thumb">
+        <img id="det-img-t1" src="" alt="Vista 2" />
+        <div class="det-gallery-dim"><span>Ver galería</span></div>
+      </div>
+      <div class="det-gallery-thumb">
+        <img id="det-img-t2" src="" alt="Vista 3" />
+        <div class="det-gallery-dim"><span>Ver galería</span></div>
+      </div>
+    </div>
 
-<div class="card">
-<table>
-<thead>
-<tr>
-<th>Área</th>
-<th>Ubicación</th>
-<th>Valor</th>
-<th>Estado</th>
-<th>Acción</th>
-</tr>
-</thead>
-<tbody id="tablaLotes"></tbody>
-</table>
-</div>
+    <div class="breadcrumb">
+      <a href="index.html">Inicio</a>
+      <span>›</span>
+      <a onclick="volverLista()">Tipologías</a>
+      <span>›</span>
+      <span id="det-breadcrumb">Apartamento</span>
+    </div>
 
-</div>
+    <div class="det-wrap">
+      <div class="det-header fade-in">
+        <div class="det-tag">🏙 Proyecto Águila · Barranquilla</div>
+        <h1 class="det-title" id="det-title">—</h1>
+        <p class="det-subtitle" id="det-subtitle"></p>
+      </div>
+      <div class="det-stats fade-in" id="det-stats"></div>
+      <div class="section-block fade-in">
+        <h2 class="section-heading">Descripción</h2>
+        <p class="det-desc" id="det-desc"></p>
+      </div>
+      <div class="section-block fade-in">
+        <h2 class="section-heading">Características incluidas</h2>
+        <div class="caract-grid" id="det-caract"></div>
+      </div>
+      <div class="section-block fade-in">
+        <h2 class="section-heading">Etapas del Proyecto</h2>
+        <div class="etapas-timeline" id="det-etapas"></div>
+      </div>
+      <div class="cta-section fade-in">
+        <h2>¿Te interesa este apartamento?</h2>
+        <p>Reserva ahora y aprovecha los precios de preventa. Cupos limitados disponibles.</p>
+        <div class="cta-btns">
+          <a href="registrar.html" class="btn-cta-white">Reservar este lote →</a>
+          <button class="btn-cta-outline" onclick="volverLista()">← Ver otras tipologías</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<script src="assets/js/app.js"></script>
-<script>cargarLotes();</script>
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="nav-logo" style="display:flex;align-items:center;gap:8px;">
+          <span class="logo-icon">🏛</span>
+          <span class="logo-text" style="font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:white;">Inmosystem</span>
+        </div>
+        <p>Tu aliado en la compra de lotes de terreno para vivienda. Construye tu futuro con nosotros.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Contacto</h5>
+        <p>📞 +57 300 123 4567</p>
+        <p>✉ info@inmosystem.com</p>
+        <p>📍 Bogotá, Colombia</p>
+      </div>
+      <div class="footer-col">
+        <h5>Enlaces</h5>
+        <a href="login.html">Iniciar Sesión</a>
+        <a href="registrar.html">Registrarse</a>
+        <a href="index.html#tipologias">Tipologías</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 Inmosystem. Todos los derechos reservados.</div>
+  </footer>
+
+  <script>
+    // ══════════════════════════════════════════════
+    // DATOS POR DEFECTO — mismos que admin.html
+    // ══════════════════════════════════════════════
+    const DEFAULT_LOTES = [
+      { id:1, nombre:'Apartamento Tipo C', area:36, hab:1, banos:1, piso:'2do al 6to', precio:"$422'760.000", estado:'Disponible', subtitulo:'Ideal para personas que buscan un espacio funcional y moderno.', descripcion:'El Apartamento Tipo C es la opción de entrada más accesible del Proyecto Águila. Con 36 m² perfectamente distribuidos, cuenta con sala-comedor integrados, cocina semi-abierta, una habitación principal con closet y un baño completo.', img:'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1200&q=80', img2:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80', img3:'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80', caracteristicas:'📐 36 m² construidos | Área total del inmueble\n🛏 1 Habitación | Con closet incluido\n🚿 1 Baño completo | Con ducha y lavamanos\n🍳 Cocina semi-abierta | Con mesón en granito\n📜 Planos incluidos | Sin costo adicional\n💳 Pago por cuotas | Financiamiento flexible' },
+      { id:2, nombre:'Apartamento Tipo E', area:72.3, hab:2, banos:2, piso:'3ro al 8vo', precio:"$739'066.800", estado:'Disponible', subtitulo:'El Tipo E ofrece amplitud y confort para familias pequeñas.', descripcion:'El Apartamento Tipo E es una de las tipologías más solicitadas del Proyecto Águila. Sus 72.3 m² incluyen sala y comedor separados, cocina con zona de ropas, dos habitaciones amplias con closets y dos baños completos.', img:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1200&q=80', img2:'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&q=80', img3:'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=600&q=80', caracteristicas:'📐 72.3 m² construidos | Área total del inmueble\n🛏 2 Habitaciones | Ambas con closet\n🚿 2 Baños completos | Acabados en porcelanato\n🍳 Cocina + zona ropas | Integrada y funcional\n🛋 Sala-comedor separados | Mayor espacio familiar\n📜 Planos incluidos | Sin costo adicional' },
+      { id:3, nombre:'Apartamento Tipo F', area:75.5, hab:2, banos:2, piso:'1ro al 10mo', precio:"$766'831.000", estado:'Disponible', subtitulo:'El Tipo F es la tipología más espaciosa del proyecto con 75.5 m².', descripcion:'Con 75.5 m², el Apartamento Tipo F es el más amplio del Proyecto Águila. Cuenta con sala, comedor y balcón integrados, cocina con isla, zona de ropas independiente y dos habitaciones con baño privado en la suite principal.', img:'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&q=80', img2:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80', img3:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=80', caracteristicas:'📐 75.5 m² construidos | La tipología más amplia\n🛏 2 Habitaciones | Suite con baño privado\n🚿 2 Baños | Suite + baño social\n🏗 Balcón incluido | Vista al proyecto\n🍳 Cocina con isla | Diseño gourmet\n🧺 Zona de ropas | Independiente y cubierta' },
+      { id:4, nombre:'Apartamento Tipo G', area:56.5, hab:2, banos:1, piso:'2do al 5to', precio:"$610'820.000", estado:'Últimas unidades', subtitulo:'El Tipo G es una oportunidad única de inversión con 56.5 m².', descripcion:'El Apartamento Tipo G ofrece dos habitaciones en tan solo 56.5 m², gracias a un diseño inteligente que optimiza cada espacio. Es la opción perfecta para inversores que buscan alta rentabilidad en arriendo.', img:'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=1200&q=80', img2:'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600&q=80', img3:'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80', caracteristicas:'📐 56.5 m² construidos | Distribución optimizada\n🛏 2 Habitaciones | Diseño compacto eficiente\n💡 Alta rentabilidad | Ideal para inversión\n🍳 Cocina lineal | Funcional y moderna\n📜 Planos incluidos | Sin costo adicional\n⚡ Últimas unidades | Disponibilidad limitada' }
+    ];
+
+    const DEFAULT_ETAPAS = [
+      { id:1, nombre:'Lanzamiento',  icon:'🚀', estado:'Completado',    descripcion:'Presentación oficial del proyecto con precios de preventa exclusivos.' },
+      { id:2, nombre:'Preventa',     icon:'📋', estado:'En curso',      descripcion:'Reserva tu lote con las mejores condiciones de financiamiento.' },
+      { id:3, nombre:'Construcción', icon:'🏗',  estado:'Próximamente', descripcion:'Desarrollo de infraestructura vial, redes y zonas comunes.' },
+      { id:4, nombre:'Entrega',      icon:'🏠',  estado:'Próximamente', descripcion:'Escrituración y entrega formal del lote al propietario.' }
+    ];
+
+    // ══════════════════════════════════════════════
+    // HELPERS
+    // ══════════════════════════════════════════════
+    function cargarTipologias() {
+      const data = localStorage.getItem('inmo_tipologias');
+      if (!data) {
+        localStorage.setItem('inmo_tipologias', JSON.stringify(DEFAULT_LOTES));
+        return DEFAULT_LOTES;
+      }
+      return JSON.parse(data);
+    }
+
+    function cargarEtapas() {
+      const data = localStorage.getItem('inmo_etapas');
+      if (!data) return DEFAULT_ETAPAS;
+      return JSON.parse(data);
+    }
+
+    function badgeClass(estado) {
+      if (estado === 'Disponible')       return 'disponible';
+      if (estado === 'Últimas unidades') return 'limitado';
+      return 'agotado';
+    }
+
+    function parsearCaract(str) {
+      if (!str) return [];
+      return str.split('\n').filter(l => l.trim()).map(linea => {
+        const partes = linea.split('|');
+        const izq    = (partes[0] || '').trim();
+        const sub    = (partes[1] || '').trim();
+        const match  = izq.match(/^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F|[\u{1F300}-\u{1FAFF}]|\S{1,2})\s*(.*)/u);
+        return match ? { icon: match[1], titulo: match[2], sub } : { icon: '•', titulo: izq, sub };
+      });
+    }
+
+    // ══════════════════════════════════════════════
+    // RENDER LISTA
+    // ══════════════════════════════════════════════
+    function renderLista() {
+      const tipologias = cargarTipologias();
+      const grid = document.getElementById('lotes-grid-container');
+
+      if (!tipologias.length) {
+        grid.innerHTML = `<div class="lotes-empty"><span>🏗</span><p>No hay tipologías disponibles por el momento.</p></div>`;
+        return;
+      }
+
+      grid.innerHTML = tipologias.map(t => `
+        <div class="lote-card" data-hab="${t.hab}" data-area="${Math.floor(t.area)}" onclick="verDetalle(${t.id})">
+          <div class="lote-card-img">
+            <span class="lote-badge ${badgeClass(t.estado)}">${t.estado}</span>
+            <img
+              src="${t.img || 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600&q=80'}"
+              alt="${t.nombre}"
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600&q=80'"
+            />
+          </div>
+          <div class="lote-card-body">
+            <div class="lote-card-header">
+              <span class="lote-card-icon">🏢</span>
+              <div class="lote-card-name">${t.nombre}</div>
+            </div>
+            <ul class="lote-specs">
+              <li><span>Área</span><strong>${t.area} m²</strong></li>
+              <li><span>Habitaciones</span><strong>${t.hab}</strong></li>
+              <li><span>Baños</span><strong>${t.banos}</strong></li>
+            </ul>
+            <div class="lote-card-footer">
+              <span class="lote-price">Desde ${t.precio}</span>
+              <span class="lote-ver">Ver detalle →</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ══════════════════════════════════════════════
+    // VER DETALLE
+    // ══════════════════════════════════════════════
+    function verDetalle(id) {
+      const tipologias = cargarTipologias();
+      const d = tipologias.find(t => t.id === id);
+      if (!d) return;
+
+      document.getElementById('vista-lista').style.display   = 'none';
+      document.getElementById('vista-detalle').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Galería
+      const fallback = 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1200&q=80';
+      document.getElementById('det-img-main').src = d.img  || fallback;
+      document.getElementById('det-img-t1').src   = d.img2 || d.img || fallback;
+      document.getElementById('det-img-t2').src   = d.img3 || d.img || fallback;
+
+      // Badge galería
+      const badge = document.getElementById('det-badge');
+      badge.textContent  = d.estado;
+      badge.className    = 'det-gallery-badge ' + badgeClass(d.estado);
+
+      // Breadcrumb + título
+      document.getElementById('det-breadcrumb').textContent = d.nombre;
+      document.getElementById('det-title').textContent      = d.nombre;
+      document.getElementById('det-subtitle').textContent   = d.subtitulo || '';
+
+      // Stats
+      document.getElementById('det-stats').innerHTML = `
+        <div class="stat-box"><div class="stat-icon">📐</div><div class="stat-value">${d.area} m²</div><div class="stat-label">Área total</div></div>
+        <div class="stat-box"><div class="stat-icon">🛏</div><div class="stat-value">${d.hab}</div><div class="stat-label">Habitaciones</div></div>
+        <div class="stat-box"><div class="stat-icon">🚿</div><div class="stat-value">${d.banos}</div><div class="stat-label">Baños</div></div>
+        <div class="stat-box"><div class="stat-icon">💰</div><div class="stat-value" style="font-size:1.1rem">${d.precio}</div><div class="stat-label">Precio desde</div></div>
+      `;
+
+      // Descripción
+      document.getElementById('det-desc').textContent = d.descripcion || '';
+
+      // Características
+      document.getElementById('det-caract').innerHTML = parsearCaract(d.caracteristicas).map(c => `
+        <div class="caract-item">
+          <span class="caract-icon">${c.icon}</span>
+          <div class="caract-text">${c.titulo}<span>${c.sub}</span></div>
+        </div>
+      `).join('');
+
+      // Etapas dinámicas
+      const etapas = cargarEtapas();
+      const statusMap = { 'Completado': 'completado', 'En curso': 'en-curso', 'Próximamente': 'proximamente' };
+      const labelMap  = { 'Completado': '✓ Completado', 'En curso': '⚡ En curso', 'Próximamente': 'Próximamente' };
+
+      document.getElementById('det-etapas').innerHTML = etapas.map((e, i) => `
+        <div class="etapa-item">
+          <div style="position:relative;">
+            <div class="etapa-circle ${e.estado === 'Completado' || e.estado === 'En curso' ? 'active' : ''}">${e.icon}</div>
+            <div class="etapa-num-badge">${i + 1}</div>
+          </div>
+          <div class="etapa-title">${e.nombre}</div>
+          <div class="etapa-desc">${e.descripcion}</div>
+          <div class="etapa-status-lbl ${statusMap[e.estado] || 'proximamente'}">${labelMap[e.estado] || e.estado}</div>
+        </div>
+      `).join('');
+    }
+
+    function volverLista() {
+      document.getElementById('vista-detalle').style.display = 'none';
+      document.getElementById('vista-lista').style.display   = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ══════════════════════════════════════════════
+    // FILTROS
+    // ══════════════════════════════════════════════
+    function filtrar(tipo, btn) {
+      document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('#lotes-grid-container .lote-card').forEach(card => {
+        const hab  = parseInt(card.dataset.hab);
+        const area = parseInt(card.dataset.area);
+        let ok = true;
+        if (tipo === '1hab')    ok = hab === 1;
+        if (tipo === '2hab')    ok = hab === 2;
+        if (tipo === 'pequeno') ok = area <= 50;
+        if (tipo === 'grande')  ok = area > 50;
+        card.style.display = ok ? 'block' : 'none';
+      });
+    }
+
+    // ══════════════════════════════════════════════
+    // INIT
+    // ══════════════════════════════════════════════
+    window.addEventListener('DOMContentLoaded', () => {
+      renderLista();
+      // Abrir detalle directo por URL (?id=1)
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (id) verDetalle(parseInt(id));
+    });
+
+    // Escuchar cambios desde admin (otra pestaña)
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'inmo_tipologias') {
+        renderLista();
+      }
+    });
+  </script>
 </body>
 </html>
