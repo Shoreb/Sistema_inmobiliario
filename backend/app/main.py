@@ -43,3 +43,83 @@ def test_db():
     conn.close()
 
     return {"database": db}
+
+from flask import Flask, request, jsonify
+import mysql.connector
+import bcrypt
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+app = Flask(__name__)
+
+# Conexión a MySQL
+def get_connection():
+    return mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME")
+    )
+
+# REGISTRO
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.json
+    name = data['name']
+    email = data['email']
+    password = data['password']
+
+    # Encriptar contraseña
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(
+            "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)",
+            (name, email, hashed_password)
+        )
+        conn.commit()
+        return jsonify({"message": "Usuario registrado"})
+    except:
+        return jsonify({"error": "Email ya existe"})
+    finally:
+        cursor.close()
+        conn.close()
+
+# LOGIN
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data['email']
+    password = data['password']
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, name, password FROM users WHERE email=%s", (email,))
+    user = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if user:
+        user_id, name, hashed_password = user
+
+        if bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
+            return jsonify({
+                "message": "Login exitoso",
+                "user": {
+                    "id": user_id,
+                    "name": name
+                }
+            })
+    
+    return jsonify({"error": "Credenciales incorrectas"}), 401
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
