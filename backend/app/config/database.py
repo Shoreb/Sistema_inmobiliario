@@ -1,17 +1,17 @@
 import os
-import mysql.connector
+import psycopg2
+import psycopg2.extras
 from dotenv import load_dotenv
 
 load_dotenv()
 
+
 def get_connection():
-
-    conn = mysql.connector.connect(
-        host=os.getenv("DB_HOST"),
-        port=int(os.getenv("DB_PORT")),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASS"),
-        database=os.getenv("DB_NAME")
-    )
-
+    """Retorna una conexión a PostgreSQL (Supabase)."""
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
     return conn
+
+
+def get_dict_cursor(conn):
+    """Retorna un cursor que devuelve filas como diccionarios."""
+    return conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)

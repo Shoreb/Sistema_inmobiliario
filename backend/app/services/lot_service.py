@@ -1,42 +1,91 @@
-from app.config.database import get_connection
+from app.config.database import get_connection, get_dict_cursor
+from fastapi import HTTPException
 
 
 def get_all_lots():
+    """Retorna todos los lotes disponibles."""
 
     conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = get_dict_cursor(conn)
 
-    cursor.execute("SELECT * FROM lots")
+    try:
+        cursor.execute("SELECT * FROM lots ORDER BY id")
+        lots = cursor.fetchall()
+        return [dict(lot) for lot in lots]
 
-    lots = cursor.fetchall()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener lotes: {str(e)}")
 
-    cursor.close()
-    conn.close()
+    finally:
+        cursor.close()
+        conn.close()
 
-    return lots
 
-
-def add_lot(lot):
+def add_lot(lot: dict):
+    """Inserta un nuevo lote en la base de datos."""
 
     conn = get_connection()
-    cursor = conn.cursor()
+    cursor = get_dict_cursor(conn)
 
-    query = """
-    INSERT INTO lots (area, location, price, stage, status)
-    VALUES (%s,%s,%s,%s,%s)
-    """
+    try:
+        query = """
+        INSERT INTO lots (area, location, price, stage, status)
+        VALUES (%s, %s, %s, %s, %s)
+        RETURNING id, area, location, price, stage, status
+        """
 
-    cursor.execute(query, (
-        lot["area"],
-        lot["location"],
-        lot["price"],
-        lot["stage"],
-        lot["status"]
-    ))
+        cursor.execute(query, (
+            lot["area"],
+            lot["location"],
+            lot["price"],
+            lot["stage"],
+            lot["status"]
+        ))
 
-    conn.commit()
+        nuevo_lote = cursor.fetchone()
+        conn.commit()
 
-    cursor.close()
-    conn.close()
+        return {
+            "message": "Lote creado correctamente",
+            "lot": dict(nuevo_lote)
+        }
 
-    return {"message": "Lote creado"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al crear lote: {str(e)}")
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def update_lot_status(lot_id: int, status: str):
+    """Actualiza el estado de un lote (disponible / reservado / vendido)."""
+
+    conn = get_connection()
+    cursor = get_dict_cursor(conn)
+
+    try:
+        cursor.execute(
+            "UPDATE lots SET status = %s WHERE id = %s RETURNING id, status",
+            (status, lot_id)
+        )
+        updated = cursor.fetchone()
+
+        if not updated:
+            raise HTTPException(status_code=404, detail="Lote no encontrado")
+
+        conn.commit()
+        return {"message": "Estado actualizado", "lot": dict(updated)}
+
+    except HTTPException:
+        conn.rollback()
+        raise
+
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al actualizar lote: {str(e)}")
+
+    finally:
+        cursor.close()
+        conn.close()

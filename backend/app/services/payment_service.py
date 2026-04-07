@@ -1,39 +1,65 @@
-from app.config.database import get_connection
+from app.config.database import get_connection, get_dict_cursor
+from fastapi import HTTPException
 
 
-def create_payment_service(payment):
+def create_payment_service(payment: dict):
+    """Registra un pago en la base de datos."""
 
     conn = get_connection()
-    cursor = conn.cursor()
+    cursor = get_dict_cursor(conn)
 
-    query = """
-    INSERT INTO payments (purchase_id, amount, payment_date)
-    VALUES (%s,%s,NOW())
-    """
+    try:
+        # Verificar que la compra existe
+        cursor.execute("SELECT id FROM purchases WHERE id = %s", (payment["purchase_id"],))
+        if not cursor.fetchone():
+            raise HTTPException(status_code=404, detail="La compra no existe")
 
-    cursor.execute(query, (
-        payment["purchase_id"],
-        payment["amount"]
-    ))
+        query = """
+        INSERT INTO payments (purchase_id, amount, payment_date)
+        VALUES (%s, %s, NOW())
+        RETURNING id, purchase_id, amount, payment_date
+        """
 
-    conn.commit()
+        cursor.execute(query, (
+            payment["purchase_id"],
+            payment["amount"]
+        ))
 
-    cursor.close()
-    conn.close()
+        nuevo_pago = cursor.fetchone()
+        conn.commit()
 
-    return {"message": "Pago registrado"}
+        return {
+            "message": "Pago registrado correctamente",
+            "payment": dict(nuevo_pago)
+        }
+
+    except HTTPException:
+        conn.rollback()
+        raise
+
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al registrar pago: {str(e)}")
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
 def get_payments_service():
+    """Retorna todos los pagos registrados."""
 
     conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = get_dict_cursor(conn)
 
-    cursor.execute("SELECT * FROM payments")
+    try:
+        cursor.execute("SELECT * FROM payments ORDER BY payment_date DESC")
+        payments = cursor.fetchall()
+        return [dict(p) for p in payments]
 
-    payments = cursor.fetchall()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener pagos: {str(e)}")
 
-    cursor.close()
-    conn.close()
-
-    return payments
+    finally:
+        cursor.close()
+        conn.close()

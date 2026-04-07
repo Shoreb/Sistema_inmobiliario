@@ -3,13 +3,14 @@ import os
 
 load_dotenv()
 
-class Settings:
-    DB_HOST = os.getenv("DB_HOST")
-    DB_USER = os.getenv("DB_USER")
-    DB_PASSWORD = os.getenv("DB_PASSWORD")
-    DB_NAME = os.getenv("DB_NAME")
-    DB_PORT = os.getenv("DB_PORT")
 
-    JWT_SECRET = os.getenv("JWT_SECRET")
+class Settings:
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    JWT_SECRET = os.getenv("JWT_SECRET", "supersecretkey")
+    EMAIL_USER = os.getenv("EMAIL_USER", "")
+    EMAIL_PASS = os.getenv("EMAIL_PASS", "")
+    SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+    SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
+
 
 settings = Settings()

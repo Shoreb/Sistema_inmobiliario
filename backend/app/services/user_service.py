@@ -1,31 +1,50 @@
-from app.config.database import get_connection
+from app.config.database import get_connection, get_dict_cursor
+from fastapi import HTTPException
 
 
 def get_all_users():
+    """Retorna la lista de todos los usuarios (sin contraseña)."""
 
     conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = get_dict_cursor(conn)
 
-    cursor.execute("SELECT id,name,email,role FROM users")
+    try:
+        cursor.execute("SELECT id, name, last_name, email, tel, role FROM users ORDER BY id")
+        users = cursor.fetchall()
+        return [dict(u) for u in users]
 
-    users = cursor.fetchall()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener usuarios: {str(e)}")
 
-    cursor.close()
-    conn.close()
+    finally:
+        cursor.close()
+        conn.close()
 
-    return users
 
-
-def get_user_by_id(user_id):
+def get_user_by_id(user_id: int):
+    """Retorna un usuario específico por su ID."""
 
     conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = get_dict_cursor(conn)
 
-    cursor.execute("SELECT id,name,email,role FROM users WHERE id=%s", (user_id,))
+    try:
+        cursor.execute(
+            "SELECT id, name, last_name, email, tel, role FROM users WHERE id = %s",
+            (user_id,)
+        )
+        user = cursor.fetchone()
 
-    user = cursor.fetchone()
+        if not user:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    cursor.close()
-    conn.close()
+        return dict(user)
 
-    return user
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener usuario: {str(e)}")
+
+    finally:
+        cursor.close()
+        conn.close()

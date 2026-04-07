@@ -3,5 +3,5 @@ from app.controllers.lot_controller import get_lots, create_lot
 
 router = APIRouter(prefix="/lots", tags=["Lots"])
 
-router.get("/")(get_lots)
-router.post("/")(create_lot)
+router.add_api_route("/", get_lots, methods=["GET"])
+router.add_api_route("/", create_lot, methods=["POST"])

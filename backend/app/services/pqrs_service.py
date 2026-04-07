@@ -1,40 +1,57 @@
-from app.config.database import get_connection
+from app.config.database import get_connection, get_dict_cursor
+from fastapi import HTTPException
 
 
-def create_pqrs_service(data):
+def create_pqrs_service(data: dict):
+    """Registra una nueva PQRS en la base de datos."""
 
     conn = get_connection()
-    cursor = conn.cursor()
+    cursor = get_dict_cursor(conn)
 
-    query = """
-    INSERT INTO pqrs (user_id, type, message, status, created_at)
-    VALUES (%s,%s,%s,'pendiente',NOW())
-    """
+    try:
+        query = """
+        INSERT INTO pqrs (user_id, type, message, status, created_at)
+        VALUES (%s, %s, %s, 'pendiente', NOW())
+        RETURNING id, user_id, type, message, status, created_at
+        """
 
-    cursor.execute(query, (
-        data["user_id"],
-        data["type"],
-        data["message"]
-    ))
+        cursor.execute(query, (
+            data["user_id"],
+            data["type"],
+            data["message"]
+        ))
 
-    conn.commit()
+        nueva_pqrs = cursor.fetchone()
+        conn.commit()
 
-    cursor.close()
-    conn.close()
+        return {
+            "message": "PQRS enviada correctamente",
+            "pqrs": dict(nueva_pqrs)
+        }
 
-    return {"message": "PQRS enviada"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al crear PQRS: {str(e)}")
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
 def get_pqrs_service():
+    """Retorna todas las PQRS registradas."""
 
     conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = get_dict_cursor(conn)
 
-    cursor.execute("SELECT * FROM pqrs")
+    try:
+        cursor.execute("SELECT * FROM pqrs ORDER BY created_at DESC")
+        pqrs_list = cursor.fetchall()
+        return [dict(p) for p in pqrs_list]
 
-    pqrs = cursor.fetchall()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener PQRS: {str(e)}")
 
-    cursor.close()
-    conn.close()
-
-    return pqrs
+    finally:
+        cursor.close()
+        conn.close()
