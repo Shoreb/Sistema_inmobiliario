@@ -1,4 +1,4 @@
-const API_URL = "https://sistemainmobiliario-production-a013.up.railway.app";
+const API_URL = "https://sistemainmobiliario-production-6652.up.railway.app";
 
 /* LOGIN */
 async function loginUser(e){
