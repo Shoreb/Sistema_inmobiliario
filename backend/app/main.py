@@ -11,11 +11,19 @@ from app.routes import (
 
 app = FastAPI(title="Sistema Inmobiliario API")
 
+# Lista de orígenes permitidos
+origins = [
+    "https://sistemainmobiliario.vercel.app",  # frontend en producción
+    "http://localhost:3000",                    # desarrollo local
+    "http://localhost:5500",                    # Live Server de VS Code
+    "http://127.0.0.1:5500",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://sistemainmobiliario.vercel.app"],
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
