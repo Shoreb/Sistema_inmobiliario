@@ -1,77 +1,215 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<title>PQRS</title>
-<link rel="stylesheet" href="assets/css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inmosystem — PQRS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-dark: #1a3a2a; --green-mid: #2d6a4f; --green-accent: #3a9e6f;
+      --cream: #f5f0e8; --cream-dark: #ede8dc; --text-dark: #1c2b22;
+      --text-muted: #5a6e5e; --white: #ffffff; --red: #e53935;
+      --shadow: 0 4px 24px rgba(0,0,0,0.10);
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text-dark); display: flex; min-height: 100vh; }
+
+    /* SIDEBAR — igual que pagos.html */
+    .sidebar {
+      width: 220px; min-height: 100vh; background: var(--green-dark);
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 200;
+    }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-logo span { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--white); }
+    .sidebar-nav { list-style: none; padding: 16px 10px; flex: 1; }
+    .sidebar-nav li { margin-bottom: 2px; }
+    .sidebar-nav a {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px;
+      text-decoration: none; color: rgba(255,255,255,0.6); font-size: 0.88rem; font-weight: 500;
+      transition: background 0.2s, color 0.2s;
+    }
+    .sidebar-nav a:hover { background: rgba(255,255,255,0.07); color: var(--white); }
+    .sidebar-nav a.active { background: var(--green-accent); color: var(--white); }
+    .sidebar-footer { padding: 14px 10px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .user-chip { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 10px 12px; border-radius: 10px; margin-bottom: 10px; }
+    .user-avatar-sm { width: 34px; height: 34px; border-radius: 50%; background: var(--green-accent); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: white; flex-shrink: 0; }
+    .user-info-sm { flex: 1; min-width: 0; }
+    .user-name-sm { font-size: 0.85rem; font-weight: 600; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role-sm { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+    .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 14px; border-radius: 8px; background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.22); color: #ef9a9a; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .logout-btn:hover { background: var(--red); color: white; border-color: var(--red); }
+
+    /* MAIN */
+    .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { position: sticky; top: 0; z-index: 100; background: rgba(245,240,232,0.97); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(42,106,79,0.12); padding: 0 36px; height: 60px; display: flex; align-items: center; }
+    .topbar h1 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--text-dark); }
+    .content { padding: 36px; }
+
+    /* CARDS */
+    .card { background: var(--white); border-radius: 14px; border: 1px solid rgba(42,106,79,0.1); box-shadow: var(--shadow); padding: 28px; margin-bottom: 28px; }
+    .card h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 20px; }
+
+    /* FORM */
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-dark); margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-group select, .form-group textarea {
+      width: 100%; padding: 11px 14px; border: 1.5px solid rgba(42,106,79,0.2);
+      border-radius: 8px; font-size: 0.92rem; font-family: 'DM Sans', sans-serif;
+      background: var(--white); color: var(--text-dark);
+      transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+    }
+    .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--green-accent); box-shadow: 0 0 0 3px rgba(58,158,111,0.12);
+    }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .btn-submit {
+      padding: 12px 28px; background: var(--green-accent); color: var(--white);
+      border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 700;
+      font-family: 'DM Sans', sans-serif; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-submit:hover { background: var(--green-mid); transform: translateY(-1px); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* TABLE */
+    table { width: 100%; border-collapse: collapse; }
+    thead th { text-align: left; padding: 10px 16px; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 2px solid var(--cream-dark); }
+    tbody tr { border-bottom: 1px solid var(--cream-dark); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--cream); }
+    tbody td { padding: 13px 16px; font-size: 0.9rem; }
+    .empty-state { text-align: center; padding: 40px 24px; color: var(--text-muted); font-size: 0.9rem; }
+
+    /* BADGES estado */
+    .badge-estado { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; text-transform: capitalize; }
+    .badge-pendiente { background: rgba(251,188,5,0.15); color: #92620a; }
+    .badge-en\ proceso, .badge-en_proceso { background: rgba(66,133,244,0.12); color: #1a56c4; }
+    .badge-resuelto, .badge-cerrado { background: rgba(58,158,111,0.15); color: #1a5c3a; }
+  </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <h2>InmoSystem</h2>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="lotes.html">Lotes</a>
-    <a href="pagos.html">Pagos</a>
-    <a href="pqrs.html">PQRS</a>
-    <a href="#" onclick="logout()">Cerrar Sesión</a>
-</div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span>🏛 Inmosystem</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="cliente.html">🏠 Mi Portal</a></li>
+      <li><a href="pagos.html">💳 Mis Pagos</a></li>
+      <li><a href="pqrs.html" class="active">📋 PQRS</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar-sm" id="clienteAvatar">?</div>
+        <div class="user-info-sm">
+          <div class="user-name-sm" id="clienteName">Cargando...</div>
+          <div class="user-role-sm">Cliente</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="logout()">⏻ Cerrar sesión</button>
+    </div>
+  </aside>
 
-<div class="main">
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <h1>📋 Gestión PQRS</h1>
+    </div>
 
-<h1>Gestión PQRS</h1>
+    <div class="content">
 
-<div class="card">
-    <h3>Enviar Nueva Solicitud</h3>
+      <!-- FORMULARIO -->
+      <div class="card">
+        <h3>Enviar nueva solicitud</h3>
+        <div class="form-group">
+          <label for="tipoPQRS">Tipo de solicitud</label>
+          <select id="tipoPQRS" required>
+            <option value="">Seleccione el tipo...</option>
+            <option value="Petición">Petición</option>
+            <option value="Queja">Queja</option>
+            <option value="Reclamo">Reclamo</option>
+            <option value="Sugerencia">Sugerencia</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="mensajePQRS">Mensaje</label>
+          <textarea id="mensajePQRS" placeholder="Describe tu solicitud con el mayor detalle posible..." required></textarea>
+        </div>
+        <button class="btn-submit" id="btnPQRS" onclick="enviarPQRS(event)">
+          📤 Enviar solicitud
+        </button>
+      </div>
 
-    <form onsubmit="enviarPQRS(event)">
-        <select id="tipoPQRS" required>
-            <option value="">Seleccione tipo</option>
-            <option>Petición</option>
-            <option>Queja</option>
-            <option>Reclamo</option>
-            <option>Sugerencia</option>
-        </select>
-
-        <textarea id="mensajePQRS" placeholder="Escriba su mensaje..." required></textarea>
-
-        <button type="submit">Enviar Solicitud</button>
-    </form>
-</div>
-
-<div class="card">
-    <h3>Mis Solicitudes</h3>
-
-    <table>
-        <thead>
+      <!-- HISTORIAL -->
+      <div class="card">
+        <h3>Mis solicitudes</h3>
+        <table>
+          <thead>
             <tr>
-                <th>Fecha</th>
-                <th>Tipo</th>
-                <th>Estado</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Mensaje</th>
+              <th>Estado</th>
             </tr>
-        </thead>
-        <tbody id="tablaPQRS">
-            <tr>
-                <td>05/02/2026</td>
-                <td>Petición</td>
-                <td class="status-disponible">En Proceso</td>
-            </tr>
-            <tr>
-                <td>15/01/2026</td>
-                <td>Queja</td>
-                <td class="status-vendido">Cerrado</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+          </thead>
+          <tbody id="tablaPQRS">
+            <tr><td colspan="4" class="empty-state">Cargando solicitudes...</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-</div>
+    </div>
+  </div>
 
 <script src="assets/js/app.js"></script>
 <script>
-function enviarPQRS(e){
-    e.preventDefault();
-    showToast("Solicitud enviada correctamente 📩");
-}
-</script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!requireAuth()) return;
+    cargarNombreUsuario();
+    cargarMisPQRS();
+  });
 
+  // Override enviarPQRS to refresh table after sending
+  const _enviarPQRS_original = enviarPQRS;
+  async function enviarPQRS(e) {
+    const btn = document.getElementById('btnPQRS');
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+    await _enviarPQRS_original(e);
+    if (btn) { btn.disabled = false; btn.textContent = '📤 Enviar solicitud'; }
+    cargarMisPQRS();
+  }
+
+  // Override cargarMisPQRS to show message column too
+  async function cargarMisPQRS() {
+    const tabla = document.getElementById('tablaPQRS');
+    if (!tabla) return;
+    try {
+      const token = getToken();
+      const res = await fetch(API_URL + '/pqrs', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const lista = await res.json();
+      const user = getUsuarioActual();
+      const misPqrs = lista.filter(p => p.user_id === user?.id);
+
+      if (!misPqrs.length) {
+        tabla.innerHTML = '<tr><td colspan="4" class="empty-state">No tienes solicitudes registradas aún</td></tr>';
+        return;
+      }
+      tabla.innerHTML = misPqrs.map(p => `
+        <tr>
+          <td>${new Date(p.created_at).toLocaleDateString('es-CO')}</td>
+          <td>${p.type}</td>
+          <td style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.message}">${p.message}</td>
+          <td><span class="badge-estado badge-${p.status}">${p.status}</span></td>
+        </tr>
+      `).join('');
+    } catch {
+      tabla.innerHTML = '<tr><td colspan="4" class="empty-state" style="color:#c0392b">Error al cargar solicitudes</td></tr>';
+    }
+  }
+</script>
 </body>
 </html>

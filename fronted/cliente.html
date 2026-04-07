@@ -451,10 +451,10 @@
     </div>
     <div class="topbar-right">
       <div class="topbar-user">
-        <div class="user-avatar" id="user-avatar">CL</div>
-        <span class="user-name" id="user-name-top">Cliente</span>
+        <div class="user-avatar" id="clienteAvatar">?</div>
+        <span class="user-name" id="clienteName">Cargando...</span>
       </div>
-      <button class="btn-logout" onclick="window.location='login.html'">Cerrar sesión</button>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
     </div>
   </header>
 
@@ -658,12 +658,17 @@
   <div class="toast" id="toast"><span id="toast-msg">✅ Listo</span></div>
 
   <script>
-  // ══════════════════════════════════════════════
+
+    // GUARD — solo clientes
+  if (typeof requireCliente === 'function') { if (!requireCliente()) throw new Error('redirect'); }
+
+    // ══════════════════════════════════════════════
   // ESTADO GLOBAL
   // ══════════════════════════════════════════════
+  const _u = getUsuarioActual() || {};
   const CLIENTE = {
-    nombre: 'Carlos López',
-    iniciales: 'CL',
+    nombre:    _u.name     || 'Cliente',
+    iniciales: ((_u.name || 'C').charAt(0) + (_u.last_name || '').charAt(0)).toUpperCase(),
     apartamentoId: null,   // id de la tipología elegida
     frecuencia: 'mensual', // 'mensual' | 'quincenal'
     plazo: 12,             // número de periodos
@@ -1108,5 +1113,12 @@
     }
   });
   </script>
+<script src="assets/js/app.js"></script>
+<script>
+  // Cargar nombre real del usuario en el topbar
+  document.addEventListener('DOMContentLoaded', function() {
+    cargarNombreUsuario();
+  });
+</script>
 </body>
 </html>

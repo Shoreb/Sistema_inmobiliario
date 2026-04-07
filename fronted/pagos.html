@@ -1,59 +1,221 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<title>Pagos</title>
-<link rel="stylesheet" href="assets/css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inmosystem — Historial de Pagos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-dark: #1a3a2a; --green-mid: #2d6a4f; --green-accent: #3a9e6f;
+      --cream: #f5f0e8; --cream-dark: #ede8dc; --text-dark: #1c2b22;
+      --text-muted: #5a6e5e; --white: #ffffff; --red: #e53935;
+      --shadow: 0 4px 24px rgba(0,0,0,0.10);
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text-dark); display: flex; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px; min-height: 100vh; background: var(--green-dark);
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 200;
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-logo span { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--white); }
+    .sidebar-nav { list-style: none; padding: 16px 10px; flex: 1; }
+    .sidebar-nav li { margin-bottom: 2px; }
+    .sidebar-nav a {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px;
+      text-decoration: none; color: rgba(255,255,255,0.6); font-size: 0.88rem; font-weight: 500;
+      transition: background 0.2s, color 0.2s;
+    }
+    .sidebar-nav a:hover { background: rgba(255,255,255,0.07); color: var(--white); }
+    .sidebar-nav a.active { background: var(--green-accent); color: var(--white); }
+    .sidebar-footer { padding: 14px 10px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .user-chip {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.05); padding: 10px 12px; border-radius: 10px; margin-bottom: 10px;
+    }
+    .user-avatar-sm {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--green-accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    .user-info-sm { flex: 1; min-width: 0; }
+    .user-name-sm { font-size: 0.85rem; font-weight: 600; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role-sm { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+    .logout-btn {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 9px 14px; border-radius: 8px; background: rgba(229,57,53,0.1);
+      border: 1px solid rgba(229,57,53,0.22); color: #ef9a9a;
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .logout-btn:hover { background: var(--red); color: white; border-color: var(--red); }
+
+    /* MAIN */
+    .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(245,240,232,0.97); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(42,106,79,0.12);
+      padding: 0 36px; height: 60px;
+      display: flex; align-items: center;
+    }
+    .topbar h1 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--text-dark); }
+    .content { padding: 36px; }
+
+    /* CARDS */
+    .card {
+      background: var(--white); border-radius: 14px;
+      border: 1px solid rgba(42,106,79,0.1); box-shadow: var(--shadow);
+      padding: 28px; margin-bottom: 28px;
+    }
+    .card h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 20px; }
+    .resumen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .resumen-item {
+      background: var(--cream); border-radius: 10px; padding: 18px 20px;
+      border: 1px solid rgba(42,106,79,0.08);
+    }
+    .resumen-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .resumen-value { font-size: 1.4rem; font-weight: 700; color: var(--green-dark); }
+
+    /* TABLE */
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left; padding: 10px 16px; font-size: 0.78rem; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 2px solid var(--cream-dark);
+    }
+    tbody tr { border-bottom: 1px solid var(--cream-dark); transition: background 0.15s; }
+    tbody tr:hover { background: var(--cream); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td { padding: 14px 16px; font-size: 0.92rem; color: var(--text-dark); }
+    .btn-dl {
+      padding: 6px 14px; border-radius: 6px; background: var(--cream);
+      border: 1px solid rgba(42,106,79,0.2); color: var(--green-mid);
+      font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-dl:hover { background: var(--green-accent); color: white; border-color: var(--green-accent); }
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); font-size: 0.92rem; }
+  </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <h2>InmoSystem</h2>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="lotes.html">Lotes</a>
-    <a href="pagos.html">Pagos</a>
-    <a href="pqrs.html">PQRS</a>
-    <a href="#" onclick="logout()">Cerrar Sesión</a>
-</div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span>🏛 Inmosystem</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="cliente.html">🏠 Mi Portal</a></li>
+      <li><a href="pagos.html" class="active">💳 Mis Pagos</a></li>
+      <li><a href="pqrs.html">📋 PQRS</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar-sm" id="clienteAvatar">?</div>
+        <div class="user-info-sm">
+          <div class="user-name-sm" id="clienteName">Cargando...</div>
+          <div class="user-role-sm">Cliente</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="logout()">⏻ Cerrar sesión</button>
+    </div>
+  </aside>
 
-<div class="main">
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <h1>💳 Historial de Pagos</h1>
+    </div>
 
-<h1>Historial de Pagos</h1>
+    <div class="content">
 
-<div class="card">
-    <h3>Resumen Financiero</h3>
-    <p><strong>Total Pagado:</strong> $12.500.000</p>
-    <p><strong>Saldo Pendiente:</strong> $8.500.000</p>
-</div>
+      <div class="card">
+        <h3>Resumen financiero</h3>
+        <div class="resumen-grid">
+          <div class="resumen-item">
+            <div class="resumen-label">Total pagado</div>
+            <div class="resumen-value" id="totalPagado">—</div>
+          </div>
+          <div class="resumen-item">
+            <div class="resumen-label">Número de pagos</div>
+            <div class="resumen-value" id="numPagos">—</div>
+          </div>
+        </div>
+      </div>
 
-<div class="card">
-    <table>
-        <thead>
+      <div class="card">
+        <h3>Detalle de pagos</h3>
+        <table>
+          <thead>
             <tr>
-                <th>Fecha</th>
-                <th>Lote</th>
-                <th>Valor Pagado</th>
-                <th>Comprobante</th>
+              <th>Fecha</th>
+              <th>Compra #</th>
+              <th>Monto</th>
+              <th>Comprobante</th>
             </tr>
-        </thead>
-        <tbody id="tablaPagos">
-            <tr>
-                <td>10/02/2026</td>
-                <td>Lote 12 - 150m²</td>
-                <td>$2.500.000</td>
-                <td><button onclick="showToast('Descargando comprobante...')">Descargar</button></td>
-            </tr>
-            <tr>
-                <td>10/01/2026</td>
-                <td>Lote 12 - 150m²</td>
-                <td>$2.500.000</td>
-                <td><button onclick="showToast('Descargando comprobante...')">Descargar</button></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+          </thead>
+          <tbody id="tablaPagos">
+            <tr><td colspan="4" class="empty-state">Cargando pagos...</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-</div>
+    </div>
+  </div>
 
 <script src="assets/js/app.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Guard — solo usuarios autenticados
+    if (!requireAuth()) return;
+    cargarNombreUsuario();
+
+    // Cargar pagos y calcular resumen
+    cargarPagosConResumen();
+  });
+
+  async function cargarPagosConResumen() {
+    const tabla = document.getElementById('tablaPagos');
+    try {
+      const token = getToken();
+      const res = await fetch(API_URL + '/payments', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      if (!res.ok) throw new Error();
+      const pagos = await res.json();
+
+      if (!pagos.length) {
+        tabla.innerHTML = '<tr><td colspan="4" class="empty-state">No tienes pagos registrados aún</td></tr>';
+        document.getElementById('totalPagado').textContent = '$0';
+        document.getElementById('numPagos').textContent = '0';
+        return;
+      }
+
+      const total = pagos.reduce((acc, p) => acc + Number(p.amount), 0);
+      document.getElementById('totalPagado').textContent = '$' + total.toLocaleString('es-CO');
+      document.getElementById('numPagos').textContent = pagos.length;
+
+      tabla.innerHTML = pagos.map(p => `
+        <tr>
+          <td>${new Date(p.payment_date).toLocaleDateString('es-CO')}</td>
+          <td>#${p.purchase_id}</td>
+          <td>$${Number(p.amount).toLocaleString('es-CO')}</td>
+          <td><button class="btn-dl" onclick="showToast('Comprobante descargando...')">⬇ Descargar</button></td>
+        </tr>
+      `).join('');
+
+    } catch {
+      tabla.innerHTML = '<tr><td colspan="4" class="empty-state" style="color:#c0392b">Error al cargar pagos. Intenta recargar la página.</td></tr>';
+    }
+  }
+</script>
 </body>
 </html>

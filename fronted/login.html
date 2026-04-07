@@ -365,7 +365,8 @@
             <a href="#" class="forgot">¿Olvidaste tu contraseña?</a>
           </div>
 
-        <button type="submit" class="btn-submit">
+        <div id="errorLogin" style="display:none;color:#c0392b;background:#fdecea;border:1px solid #f5c6cb;padding:10px 14px;border-radius:8px;font-size:0.88rem;margin-bottom:16px;"></div>
+          <button type="submit" id="btnLogin" class="btn-submit">
             Ingresar →
         </button>
     </form>
@@ -376,7 +377,6 @@
             <span class="google-icon">G</span>
             Continuar con Google
           </button>
-        </form>
 
         <p class="register-link">
           ¿No tienes una cuenta? <a href="register.html">Regístrate gratis</a>
@@ -392,5 +392,14 @@
   </div>
 
 <script src="assets/js/app.js"></script>
+<script>
+  // Si ya hay sesión activa, redirigir según rol
+  document.addEventListener('DOMContentLoaded', function() {
+    const user = getUsuarioActual();
+    if (user && isTokenValido()) {
+      window.location.replace(user.role === 'admin' ? 'dashboard.html' : 'cliente.html');
+    }
+  });
+</script>
 </body>
 </html>
