@@ -1,7 +1,7 @@
 // ================================================================
 // CONFIGURACIÓN GLOBAL
 // ================================================================
-const API_URL = "https://sistemainmobiliario-production-a013.up.railway.app";
+const API_URL = "https://sistemainmobiliario-production-6652.up.railway.app";
 
 // ================================================================
 // UTILIDADES JWT — leer el payload del token sin librerías
